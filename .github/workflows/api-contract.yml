@@ -33,7 +33,7 @@ jobs:
   contract:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - uses: actions/setup-go@v7
         with:
@@ -60,7 +60,7 @@ jobs:
   docs:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - name: Setup Node and pnpm
         uses: ./.github/actions/setup-js

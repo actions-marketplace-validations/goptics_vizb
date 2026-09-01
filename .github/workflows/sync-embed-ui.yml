@@ -43,7 +43,7 @@ jobs:
       group: embed-ui-${{ github.sha }}
       queue: max
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -81,7 +81,7 @@ jobs:
           permission-contents: write
 
       # persist-credentials true (default): git-auto-commit pushes with app token.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: true
