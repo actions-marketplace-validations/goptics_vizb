@@ -2,7 +2,8 @@ package javascript
 
 import (
 	"bufio"
-	"os"
+	"fmt"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -50,15 +51,10 @@ func parseMedWithMAD(s string) (med, mad float64) {
 	return
 }
 
-func ParseTinyBenchBenchmark(filename string) []shared.BenchmarkData {
-	f, err := os.Open(filename)
-	if err != nil {
-		shared.ExitWithError("Error opening file", err)
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	var results []shared.BenchmarkData
+// ParseTinyBenchBenchmark converts Tinybench table output into data points.
+func ParseTinyBenchBenchmark(input io.Reader, cfg parser.Config) ([]shared.DataPoint, parser.Config, *shared.Meta, error) {
+	scanner := bufio.NewScanner(input)
+	var results []shared.DataPoint
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -79,7 +75,11 @@ func ParseTinyBenchBenchmark(filename string) []shared.BenchmarkData {
 
 		taskName := strings.Trim(columns[0], " '")
 
-		if !parser.ShouldIncludeBenchmark(taskName) {
+		include, err := parser.ShouldIncludeBenchmark(taskName, cfg)
+		if err != nil {
+			return nil, cfg, nil, err
+		}
+		if !include {
 			continue
 		}
 
@@ -95,34 +95,35 @@ func ParseTinyBenchBenchmark(filename string) []shared.BenchmarkData {
 		throughputMed, throughputMAD := parseMedWithMAD(throughputMedStr)
 		samples, _ := strconv.ParseFloat(samplesStr, 64)
 
-		group, groupErr := parser.GroupBenchmarkName(taskName)
+		group, groupErr := parser.GroupBenchmarkName(taskName, cfg)
 		if groupErr != nil {
-			shared.ExitWithError("Error parsing tinybench name", groupErr)
+			return nil, cfg, nil, fmt.Errorf("parse tinybench name: %w", groupErr)
 		}
 
-		benchName, xAxis, yAxis := group["name"], group["xAxis"], group["yAxis"]
+		benchName, xAxis, yAxis, zAxis := group["name"], group["xAxis"], group["yAxis"], group["zAxis"]
 
-		results = append(results, shared.BenchmarkData{
+		results = append(results, shared.DataPoint{
 			Name:  benchName,
 			XAxis: xAxis,
 			YAxis: yAxis,
+			ZAxis: zAxis,
 			Stats: []shared.Stat{
-				{Type: utils.CreateStatType("Latency avg", shared.FlagState.TimeUnit, ""), Value: utils.FormatTime(latencyAvg, shared.FlagState.TimeUnit)},
-				{Type: "Latency RME (%)", Value: latencyRME, Symbol: "±"},
-				{Type: utils.CreateStatType("Latency med", shared.FlagState.TimeUnit, ""), Value: utils.FormatTime(latencyMed, shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency MAD", shared.FlagState.TimeUnit, ""), Value: utils.FormatTime(latencyMAD, shared.FlagState.TimeUnit), Symbol: "±"},
-				{Type: "Throughput avg (ops/s)", Value: throughputAvg},
-				{Type: "Throughput RME (%)", Value: throughputRME, Symbol: "±"},
-				{Type: "Throughput med (ops/s)", Value: throughputMed},
-				{Type: "Throughput MAD (ops/s)", Value: throughputMAD, Symbol: "±"},
-				{Type: "Samples", Value: samples},
+				{Type: utils.CreateStatType("Latency avg", cfg.TimeUnit, ""), Value: shared.F64(utils.FormatTime(latencyAvg, cfg.TimeUnit, cfg.Round))},
+				{Type: "Latency RME (%)", Value: shared.F64(latencyRME), Symbol: "±"},
+				{Type: utils.CreateStatType("Latency med", cfg.TimeUnit, ""), Value: shared.F64(utils.FormatTime(latencyMed, cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency MAD", cfg.TimeUnit, ""), Value: shared.F64(utils.FormatTime(latencyMAD, cfg.TimeUnit, cfg.Round)), Symbol: "±"},
+				{Type: "Throughput avg (ops/s)", Value: shared.F64(throughputAvg)},
+				{Type: "Throughput RME (%)", Value: shared.F64(throughputRME), Symbol: "±"},
+				{Type: "Throughput med (ops/s)", Value: shared.F64(throughputMed)},
+				{Type: "Throughput MAD (ops/s)", Value: shared.F64(throughputMAD), Symbol: "±"},
+				{Type: "Samples", Value: shared.F64(samples)},
 			},
 		})
 	}
 
 	if err := scanner.Err(); err != nil {
-		shared.ExitWithError("failed to read file", err)
+		return nil, cfg, nil, fmt.Errorf("read tinybench benchmark: %w", err)
 	}
 
-	return results
+	return results, cfg, nil, nil
 }

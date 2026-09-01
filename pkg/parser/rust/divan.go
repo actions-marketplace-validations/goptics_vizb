@@ -2,7 +2,8 @@ package rust
 
 import (
 	"bufio"
-	"os"
+	"fmt"
+	"io"
 	"regexp"
 	"strings"
 	"unicode"
@@ -20,15 +21,10 @@ var divanRowRe = regexp.MustCompile(`^[├╰]─\s+(\S+)\s+(.+)$`)
 
 var divanValRe = regexp.MustCompile(`([\d.]+)\s*(ns|µs|μs|ms|s)`)
 
-func ParseDivanBenchmark(filename string) []shared.BenchmarkData {
-	f, err := os.Open(filename)
-	if err != nil {
-		shared.ExitWithError("Error opening file", err)
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	var results []shared.BenchmarkData
+// ParseDivanBenchmark converts Divan benchmark output into data points.
+func ParseDivanBenchmark(input io.Reader, cfg parser.Config) ([]shared.DataPoint, parser.Config, *shared.Meta, error) {
+	scanner := bufio.NewScanner(input)
+	var results []shared.DataPoint
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -41,7 +37,11 @@ func ParseDivanBenchmark(filename string) []shared.BenchmarkData {
 		}
 
 		name := match[1]
-		if !parser.ShouldIncludeBenchmark(name) {
+		include, err := parser.ShouldIncludeBenchmark(name, cfg)
+		if err != nil {
+			return nil, cfg, nil, err
+		}
+		if !include {
 			continue
 		}
 
@@ -69,30 +69,31 @@ func ParseDivanBenchmark(filename string) []shared.BenchmarkData {
 		meanNs := values[3]
 		samples := values[4]
 
-		group, groupErr := parser.GroupBenchmarkName(name)
+		group, groupErr := parser.GroupBenchmarkName(name, cfg)
 		if groupErr != nil {
-			shared.ExitWithError("Error parsing divan benchmark name", groupErr)
+			return nil, cfg, nil, fmt.Errorf("parse divan benchmark name: %w", groupErr)
 		}
 
-		benchName, xAxis, yAxis := group["name"], group["xAxis"], group["yAxis"]
+		benchName, xAxis, yAxis, zAxis := group["name"], group["xAxis"], group["yAxis"], group["zAxis"]
 
-		results = append(results, shared.BenchmarkData{
+		results = append(results, shared.DataPoint{
 			Name:  benchName,
 			XAxis: xAxis,
 			YAxis: yAxis,
+			ZAxis: zAxis,
 			Stats: []shared.Stat{
-				{Type: utils.CreateStatType("Latency fastest", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(fastestNs, "ns", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency slowest", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(slowestNs, "ns", shared.FlagState.TimeUnit), Symbol: "±"},
-				{Type: utils.CreateStatType("Latency median", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(medianNs, "ns", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency mean", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(meanNs, "ns", shared.FlagState.TimeUnit)},
-				{Type: "Samples", Value: samples},
+				{Type: utils.CreateStatType("Latency fastest", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(fastestNs, "ns", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency slowest", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(slowestNs, "ns", cfg.TimeUnit, cfg.Round)), Symbol: "±"},
+				{Type: utils.CreateStatType("Latency median", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(medianNs, "ns", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency mean", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(meanNs, "ns", cfg.TimeUnit, cfg.Round))},
+				{Type: "Samples", Value: shared.F64(samples)},
 			},
 		})
 	}
 
 	if err := scanner.Err(); err != nil {
-		shared.ExitWithError("failed to read file", err)
+		return nil, cfg, nil, fmt.Errorf("read divan benchmark: %w", err)
 	}
 
-	return results
+	return results, cfg, nil, nil
 }

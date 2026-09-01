@@ -1,33 +1,50 @@
 package cmd
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/goptics/vizb/pkg/style"
+	"github.com/goptics/vizb/cmd/cli"
+	"github.com/goptics/vizb/pkg/cliout"
+	"github.com/goptics/vizb/pkg/core"
 	"github.com/goptics/vizb/shared"
+	"github.com/goptics/vizb/shared/utils"
 	"github.com/spf13/cobra"
 )
+
+// mergeOptions holds the flags for the merge subcommand.
+type mergeOptions struct {
+	OutputFile string
+	TagAxis    string
+}
+
+var mergeOpts mergeOptions
 
 // mergeCmd represents the merge command
 var mergeCmd = &cobra.Command{
 	Use:   "merge [files/directories...]",
-	Short: "Merge multiple benchmark JSON files",
-	Long: `Merge multiple benchmark JSON files into a single benchmark report.
-You can provide individual JSON files or directories containing JSON files.`,
+	Short: "Merge multiple Dataset JSON files",
+	Long: `Merge Dataset JSON files (or directories of them) into one report.
+Tags from each dataset are injected onto the chosen dimension.`,
 	Run: runMerge,
 }
 
 func init() {
 	rootCmd.AddCommand(mergeCmd)
-	mergeCmd.Flags().StringVarP(&shared.FlagState.TagAxis, "tag-axis", "A", "n",
-		"Where to inject tag: n (name), x (xAxis), y (yAxis)")
+	mergeCmd.Flags().StringVarP(&mergeOpts.OutputFile, "output", "o", "", "Output path (.html or .json)")
+	mergeCmd.Flags().StringVarP(&mergeOpts.TagAxis, "tag-axis", "A", "n",
+		"Dimension for tags (n, x, y, z)")
 }
 
 func runMerge(cmd *cobra.Command, args []string) {
+	utils.ApplyValidationRules([]utils.ValidationRule{{
+		Label:    "inject dimension",
+		Value:    &mergeOpts.TagAxis,
+		ValidSet: []string{"n", "x", "y", "z"},
+		Default:  "n",
+	}})
+
 	if len(args) == 0 {
 		shared.ExitWithError("No input files provided", nil)
 	}
@@ -37,13 +54,20 @@ func runMerge(cmd *cobra.Command, args []string) {
 		shared.ExitWithError("No valid files found to merge", nil)
 	}
 
-	benches := readBenchmarks(files)
-	if len(benches) == 0 {
-		shared.ExitWithError("No valid benchmark files processed", nil)
+	dataSets := readFiles(files)
+	if len(dataSets) == 0 {
+		shared.ExitWithError("No valid data set files processed", nil)
 	}
 
-	merged := shared.MergeBenchmarks(benches, shared.Dimension(shared.FlagState.TagAxis))
-	writeMergeOutput(merged)
+	writeMergeOutput(mergeDatasets(dataSets, shared.Dimension(mergeOpts.TagAxis)))
+}
+
+func mergeDatasets(dataSets []shared.Dataset, dimension shared.Dimension) []shared.Dataset {
+	merged, err := core.Merge(dataSets, dimension)
+	if err != nil {
+		shared.ExitWithError(err.Error(), nil)
+	}
+	return merged
 }
 
 func collectJSONFiles(args []string) []string {
@@ -51,14 +75,14 @@ func collectJSONFiles(args []string) []string {
 	for _, arg := range args {
 		info, err := os.Stat(arg)
 		if err != nil {
-			logWarn("cannot access %s: %v", arg, err)
+			cliout.Warnf("cannot access %s: %v", arg, err)
 			continue
 		}
 
 		if info.IsDir() {
 			found, err := filepath.Glob(filepath.Join(arg, "*.json"))
 			if err != nil {
-				logWarn("error scanning directory %s: %v", arg, err)
+				cliout.Warnf("error scanning directory %s: %v", arg, err)
 				continue
 			}
 			files = append(files, found...)
@@ -69,55 +93,26 @@ func collectJSONFiles(args []string) []string {
 	return files
 }
 
-func readBenchmarks(files []string) []shared.Benchmark {
-	var benches []shared.Benchmark
+func readFiles(files []string) []shared.Dataset {
+	var dataSets []shared.Dataset
 	for _, file := range files {
-		parsed, err := parseBenchmarkFile(file)
+		parsed, err := cli.ParseDatasetFile(file)
 		if err != nil {
-			logWarn("%s: %v", file, err)
+			cliout.Warnf("%s: %v", file, err)
 			continue
 		}
-		benches = append(benches, parsed...)
+		dataSets = append(dataSets, parsed...)
 	}
-	return benches
+	return dataSets
 }
 
-func parseBenchmarkFile(file string) ([]shared.Benchmark, error) {
-	content, err := os.ReadFile(file)
+func writeMergeOutput(dataSets []shared.Dataset) {
+	jsonData, err := json.Marshal(dataSets)
 	if err != nil {
-		return nil, fmt.Errorf("cannot read file: %w", err)
+		shared.ExitWithError("Failed to marshal merged data set data: %v", err)
 	}
 
-	trimmed := bytes.TrimLeft(content, " \t\r\n")
-	if len(trimmed) == 0 {
-		return nil, fmt.Errorf("file is empty")
-	}
-
-	switch trimmed[0] {
-	case '[':
-		var benches []shared.Benchmark
-		if err := json.Unmarshal(content, &benches); err != nil {
-			return nil, fmt.Errorf("invalid benchmark array: %w", err)
-		}
-		return benches, nil
-	case '{':
-		var bench shared.Benchmark
-		if err := json.Unmarshal(content, &bench); err != nil {
-			return nil, fmt.Errorf("invalid benchmark object: %w", err)
-		}
-		return []shared.Benchmark{bench}, nil
-	default:
-		return nil, fmt.Errorf("not valid JSON")
-	}
-}
-
-func writeMergeOutput(benches []shared.Benchmark) {
-	jsonData, err := json.Marshal(benches)
-	if err != nil {
-		shared.ExitWithError("Failed to marshal merged benchmark data: %v", err)
-	}
-
-	outFile := shared.FlagState.OutputFile
+	outFile := mergeOpts.OutputFile
 	if outFile == "" {
 		outFile = shared.MustCreateTempFile(shared.TempBenchFilePrefix, "json")
 		shared.TempFiles.Store(outFile)
@@ -127,15 +122,10 @@ func writeMergeOutput(benches []shared.Benchmark) {
 
 	f := shared.MustCreateFile(outFile)
 	defer f.Close()
-	defer HandleOutputResult(f)
+	defer cli.HandleOutputResult(f, mergeOpts.OutputFile)
 
 	if _, err := f.Write(jsonData); err != nil {
 		shared.ExitWithError("Failed to write JSON output: %v", err)
 	}
-	fmt.Println(style.Success.Render(fmt.Sprintf("🎉 Generated merged JSON successfully: %s", outFile)))
-}
-
-func logWarn(format string, args ...interface{}) {
-	msg := fmt.Sprintf("Warning: "+format, args...)
-	fmt.Fprintln(os.Stderr, style.Warning.Render(msg))
+	cliout.Info("Generated merged JSON successfully")
 }

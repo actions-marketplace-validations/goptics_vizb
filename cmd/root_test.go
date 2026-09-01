@@ -1,404 +1,522 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"testing"
 
+	internal_charts "github.com/goptics/vizb/internal/charts"
+	barchart "github.com/goptics/vizb/internal/charts/bar"
+	linechart "github.com/goptics/vizb/internal/charts/line"
+	piechart "github.com/goptics/vizb/internal/charts/pie"
+	scatterchart "github.com/goptics/vizb/internal/charts/scatter"
 	"github.com/goptics/vizb/shared"
-	"github.com/goptics/vizb/shared/utils"
-	"github.com/spf13/cobra"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/goptics/vizb/testutil"
+	"github.com/stretchr/testify/suite"
 )
 
-// Save the real os.Exit function in a variable
-var osExit = shared.OsExit
-var originalOsExit = os.Exit
-
-// Override os.Exit for testing
-func TestMain(m *testing.M) {
-	// Replace the os.Exit function with a custom version for testing
-	// that doesn't actually exit the process
-	osExit = func(code int) {
-		// In tests, don't actually exit
-		panic(fmt.Sprintf("os.Exit(%d) was called", code))
-	}
-
-	// Run tests
-	code := m.Run()
-
-	// Restore the real os.Exit
-	osExit = originalOsExit
-
-	// Exit with the code from the test run
-	osExit(code)
+// RootSuite covers the root command end-to-end via rootCmd.Execute.
+type RootSuite struct {
+	suite.Suite
+	restoreOsExit func()
 }
 
-// TestValidateFlags tests that flag validation works correctly
-func TestValidateFlags(t *testing.T) {
-	// Save original state to restore after tests
-	origMemUnit := shared.FlagState.MemUnit
-	origTimeUnit := shared.FlagState.TimeUnit
-	origAllocUnit := shared.FlagState.NumberUnit
-
-	defer func() {
-		// Restore original flag values
-		shared.FlagState.MemUnit = origMemUnit
-		shared.FlagState.TimeUnit = origTimeUnit
-		shared.FlagState.NumberUnit = origAllocUnit
-	}()
-
-	tests := []struct {
-		name              string
-		setupFlags        func()
-		expectedMemUnit   string
-		expectedTimeUnit  string
-		expectedAllocUnit string
-		expectedOutput    string
-	}{
-		{
-			name: "Valid flags",
-			setupFlags: func() {
-				shared.FlagState.MemUnit = "b"
-				shared.FlagState.TimeUnit = "ns"
-				shared.FlagState.NumberUnit = ""
-			},
-			expectedMemUnit:   "b",
-			expectedTimeUnit:  "ns",
-			expectedAllocUnit: "",
-			expectedOutput:    "",
-		},
-		{
-			name: "Invalid memory unit",
-			setupFlags: func() {
-				shared.FlagState.MemUnit = "invalid"
-				shared.FlagState.TimeUnit = "ns"
-				shared.FlagState.NumberUnit = ""
-			},
-			expectedMemUnit:   "B",
-			expectedTimeUnit:  "ns",
-			expectedAllocUnit: "",
-			expectedOutput:    "Warning: Invalid memory unit 'invalid'.",
-		},
-		{
-			name: "Invalid time unit",
-			setupFlags: func() {
-				shared.FlagState.MemUnit = "B"
-				shared.FlagState.TimeUnit = "invalid"
-				shared.FlagState.NumberUnit = ""
-			},
-			expectedMemUnit:   "B",
-			expectedTimeUnit:  "ns",
-			expectedAllocUnit: "",
-			expectedOutput:    "Warning: Invalid time unit 'invalid'.",
-		},
-		{
-			name: "Invalid alloc unit",
-			setupFlags: func() {
-				shared.FlagState.MemUnit = "B"
-				shared.FlagState.TimeUnit = "ns"
-				shared.FlagState.NumberUnit = "invalid"
-			},
-			expectedMemUnit:   "B",
-			expectedTimeUnit:  "ns",
-			expectedAllocUnit: "",
-			expectedOutput:    "Warning: Invalid number unit 'INVALID'.",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Set up the flags
-			tt.setupFlags()
-
-			// Capture stderr output
-			oldStderr := os.Stderr
-			r, w, _ := os.Pipe()
-			os.Stderr = w
-
-			// Call validation function to trigger validation and warning messages
-			utils.ApplyValidationRules(flagValidationRules)
-
-			// Close write end of pipe to get all output
-			w.Close()
-			// Read output data
-			var buf bytes.Buffer
-			io.Copy(&buf, r)
-			// Restore stderr
-			os.Stderr = oldStderr
-
-			// Check that the flags were updated correctly after validation
-			assert.Equal(t, tt.expectedMemUnit, shared.FlagState.MemUnit)
-			assert.Equal(t, tt.expectedTimeUnit, shared.FlagState.TimeUnit)
-			assert.Equal(t, tt.expectedAllocUnit, shared.FlagState.NumberUnit)
-
-			// Check the stderr output if expected
-			if tt.expectedOutput != "" {
-				if tt.expectedOutput != "" {
-					assert.Contains(t, buf.String(), tt.expectedOutput)
-				}
-			}
-		})
-	}
+func (s *RootSuite) SetupTest() {
+	ResetTestState()
+	s.restoreOsExit, _ = testutil.TrapOsExitPanic(s.T())
 }
 
-// TestCheckTargetFile tests the file existence check
-func TestCheckTargetFile(t *testing.T) {
-	// Create a temporary directory for test files
-	tempDir := t.TempDir()
-
-	// Mock shared.OsExit since checkTargetFile calls shared.ExitWithError
-	exitCalled := false
-	originalOsExitFunc := shared.OsExit
-	shared.OsExit = func(code int) {
-		exitCalled = true
-		panic(fmt.Sprintf("shared.OsExit(%d) called", code)) // Use panic for flow control in tests
-	}
-	defer func() { shared.OsExit = originalOsExitFunc }()
-
-	// Create a valid file
-	validPath := filepath.Join(tempDir, "valid.txt")
-	err := os.WriteFile(validPath, []byte("content"), 0644)
-	require.NoError(t, err)
-
-	nonExistentPath := filepath.Join(tempDir, "nonexistent.txt")
-
-	tests := []struct {
-		name          string
-		inputPath     string
-		expectExit    bool
-		expectedError string
-	}{
-		{
-			name:          "Existing file",
-			inputPath:     validPath,
-			expectExit:    false,
-			expectedError: "",
-		},
-		{
-			name:          "Non-existent file",
-			inputPath:     nonExistentPath,
-			expectExit:    true,
-			expectedError: "does not exist",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Reset the exitCalled flag for each test
-			exitCalled = false
-
-			// Call the function and handle any os.Exit panics
-			if tt.expectExit {
-				// Use WithSafeStderr to execute and capture output
-				output, err := shared.WithSafeStderr("checkTargetFile", func() {
-					checkTargetFile(tt.inputPath)
-				})
-
-				// Check assertions
-				if err == nil {
-					t.Error("Expected shared.OsExit to be called")
-				}
-				assert.True(t, exitCalled, "shared.OsExit should have been called")
-				assert.Contains(t, output, tt.expectedError)
-			} else {
-				// Prepare stderr capture for non-exit case
-				oldStderr := os.Stderr
-				_, w, _ := os.Pipe()
-				os.Stderr = w
-
-				checkTargetFile(tt.inputPath)
-
-				// Close write end of pipe
-				w.Close()
-				os.Stderr = oldStderr
-
-				assert.False(t, exitCalled, "shared.OsExit should not have been called")
-			}
-		})
-	}
+func (s *RootSuite) TearDownTest() {
+	s.restoreOsExit()
 }
 
-func TestConvertToBenchmark(t *testing.T) {
-	tempDir := t.TempDir()
+func (s *RootSuite) TestCommandFlags() {
+	s.NotNil(rootCmd.Flags().Lookup("charts"))
+	s.NotNil(rootCmd.Flags().Lookup("sort"))
+	s.NotNil(rootCmd.Flags().Lookup("parser"))
+	s.Equal(defaultChartTypes, rootCharts)
+}
 
-	// Mock shared.OsExit
-	originalOsExit := shared.OsExit
-	defer func() { shared.OsExit = originalOsExit }()
+func (s *RootSuite) TestValidateRootOptionsWarnsAndDefaults() {
+	s.Require().NoError(rootCmd.Flags().Set("mem-unit", "invalid"))
+	out := testutil.CaptureStderr(func() { validateRootOptions(rootCmd) })
+	s.Equal("B", rootBag.String("mem-unit"))
+	s.Contains(out, "Invalid memory unit")
+}
 
-	shared.OsExit = func(code int) {
-		panic(fmt.Sprintf("shared.OsExit(%d) called", code))
-	}
+func (s *RootSuite) TestRunBenchmarkValidFileInput() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.html")
 
-	t.Run("Valid benchmark JSON", func(t *testing.T) {
-		validFile := filepath.Join(tempDir, "valid_bench.json")
-		bench := shared.Benchmark{
-			Name: "Test Benchmark",
-			Data: []shared.BenchmarkData{
-				{Name: "Bench1", Stats: []shared.Stat{{Type: "time", Value: 100}}},
-			},
+	outStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.FileExists(out)
+	s.Contains(outStr, "Generated")
+}
+
+func (s *RootSuite) TestRunBenchmarkNoArgsNoStdinExits() {
+	restore, exitCalled := testutil.TrapOsExitPanic(s.T())
+	defer restore()
+
+	oldStdin := os.Stdin
+	r, w, _ := os.Pipe()
+	os.Stdin = r
+	w.Close()
+	defer func() { os.Stdin = oldStdin }()
+
+	rootCmd.SetArgs(nil)
+	s.Panics(func() { _ = rootCmd.Execute() })
+	s.True(*exitCalled)
+}
+
+func (s *RootSuite) TestRunBenchmarkGlobalSortApplied() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+	rootCharts = nil
+
+	errStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-o", out, "-c", "bar", "-c", "line", "-s", "desc", input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.Contains(errStr, "Generated")
+	s.Contains(errStr, "--sort is deprecated")
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().Len(ds.Settings, 2)
+
+	for i, c := range ds.Settings {
+		switch c := c.(type) {
+		case *barchart.Config:
+			s.Require().NotNil(c.Sort, "settings[%d] (bar) sort should be set", i)
+			s.True(c.Sort.Enabled)
+			s.Equal("desc", c.Sort.Order)
+		case *linechart.Config:
+			s.Require().NotNil(c.Sort, "settings[%d] (line) sort should be set", i)
+			s.True(c.Sort.Enabled)
+			s.Equal("desc", c.Sort.Order)
+		default:
+			s.Failf("unexpected chart type", "settings[%d] type=%T", i, c)
 		}
-		data, err := json.Marshal(bench)
-		require.NoError(t, err)
-		err = os.WriteFile(validFile, data, 0644)
-		require.NoError(t, err)
-
-		result := convertToBenchmark(validFile)
-		require.NotNil(t, result)
-		assert.Equal(t, "Test Benchmark", result.Name)
-		assert.Len(t, result.Data, 1)
-	})
-
-	t.Run("Invalid JSON content", func(t *testing.T) {
-		invalidFile := filepath.Join(tempDir, "invalid.json")
-		err := os.WriteFile(invalidFile, []byte("invalid json"), 0644)
-		require.NoError(t, err)
-
-		result := convertToBenchmark(invalidFile)
-		assert.Nil(t, result)
-	})
-
-	t.Run("File read error", func(t *testing.T) {
-		nonExistentFile := filepath.Join(tempDir, "does_not_exist.json")
-
-		assert.Panics(t, func() {
-			convertToBenchmark(nonExistentFile)
-		})
-	})
+	}
 }
 
-// TestRunBenchmark tests the main runBenchmark function
-func TestRunBenchmark(t *testing.T) {
-	// Create a temporary directory for test files
-	tempDir := t.TempDir()
+func (s *RootSuite) TestRunBenchmarkStdinPipe() {
+	origStdin := os.Stdin
+	defer func() { os.Stdin = origStdin }()
 
-	// Create a valid text benchmark file (avoid JSON conversion issues)
-	validTextPath := filepath.Join(tempDir, "valid.txt")
-	textContent := `BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`
-	err := os.WriteFile(validTextPath, []byte(textContent), 0644)
-	require.NoError(t, err)
+	stdinFile, err := os.CreateTemp("", "root_stdin")
+	s.Require().NoError(err)
+	defer os.Remove(stdinFile.Name())
+	s.Require().NoError(os.WriteFile(stdinFile.Name(), []byte(
+		"BenchmarkExample-8    1000000    1234 ns/op    1000 B/op    10 allocs/op\n",
+	), 0644))
+	f, err := os.Open(stdinFile.Name())
+	s.Require().NoError(err)
+	os.Stdin = f
+	defer f.Close()
 
-	// Save original flag state
-	origOutputFile := shared.FlagState.OutputFile
-	defer func() {
-		shared.FlagState.OutputFile = origOutputFile
-	}()
+	dir := s.T().TempDir()
+	out := filepath.Join(dir, "out.json")
 
-	// Mock shared.OsExit since runBenchmark uses shared.ExitWithError
-	exitCalled := false
-	oldOsExit := shared.OsExit
-	defer func() { shared.OsExit = oldOsExit }()
-	shared.OsExit = func(code int) {
-		exitCalled = true
-		panic(fmt.Sprintf("shared.OsExit(%d) called", code)) // Use panic for flow control in tests
-	}
+	outStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-o", out})
+		s.Require().NoError(rootCmd.Execute())
+	})
 
-	tests := []struct {
-		name           string
-		argsFunc       func() []string
-		setupStdin     func() (restoreFunc func())
-		expectExit     bool
-		expectedOutput string
-		setupFlags     func()
-	}{
-		{
-			name: "Valid file input",
-			argsFunc: func() []string {
-				return []string{validTextPath}
-			},
-			setupStdin:     func() func() { return func() {} },
-			expectExit:     false,
-			expectedOutput: "Generated",
-			setupFlags: func() {
-				shared.FlagState.OutputFile = filepath.Join(tempDir, "out.html")
-			},
+	s.FileExists(out)
+	s.Contains(outStr, "Generated")
+	ds := testutil.ReadDataset(s.T(), out)
+	s.NotEmpty(ds.Data)
+}
+
+func (s *RootSuite) TestRunBenchmarkDatasetPassthrough() {
+	dir := s.T().TempDir()
+	input := filepath.Join(dir, "baked.json")
+	testutil.WriteJSON(s.T(), input, shared.Dataset{
+		Name: "Baked",
+		Settings: []internal_charts.ChartConfig{
+			&barchart.Config{Type: "bar", Scale: shared.ScaleLog},
+			&linechart.Config{Type: "line", Scale: shared.ScaleLog},
 		},
-		{
-			name: "No args and no stdin",
-			argsFunc: func() []string {
-				return []string{}
-			},
-			setupStdin:     func() func() { return func() {} },
-			expectExit:     true,
-			expectedOutput: "",
-			setupFlags:     func() {},
-		},
+		Data: []shared.DataPoint{{Name: "P1", XAxis: "1", YAxis: "100"}},
+	})
+	out := filepath.Join(dir, "out.json")
+	rootCharts = nil
+
+	rootCmd.SetArgs([]string{"-o", out, "-c", "bar", input})
+	s.Require().NoError(rootCmd.Execute())
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().Len(ds.Settings, 2)
+	s.Equal("bar", ds.Settings[0].ChartType())
+	s.Equal("line", ds.Settings[1].ChartType())
+	lineCfg, ok := ds.Settings[1].(*linechart.Config)
+	s.Require().True(ok)
+	s.Equal(shared.ScaleLog, lineCfg.Scale)
+}
+
+func (s *RootSuite) TestRunBenchmarkAutoParser() {
+	dir := s.T().TempDir()
+	csv := filepath.Join(dir, "data.csv")
+	s.Require().NoError(os.WriteFile(csv, []byte("name,sells\nalpha,10\nbeta,20\n"), 0644))
+	out := filepath.Join(dir, "out.json")
+
+	rootCmd.SetArgs([]string{"-o", out, "-P", "auto", csv})
+	s.Require().NoError(rootCmd.Execute())
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.NotEmpty(ds.Data)
+}
+
+func (s *RootSuite) TestRunBenchmarkChartOverride() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+	rootCharts = nil
+
+	rootCmd.SetArgs([]string{"-o", out, "-c", "bar", "--chart", "bar:swap=yxn", input})
+	s.Require().NoError(rootCmd.Execute())
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().Len(ds.Settings, 1)
+	barCfg, ok := ds.Settings[0].(*barchart.Config)
+	s.Require().True(ok)
+	s.Equal("yxn", barCfg.Swap)
+}
+
+func (s *RootSuite) TestRunBenchmarkScatterChart() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+	rootCharts = nil
+
+	rootCmd.SetArgs([]string{"-o", out, "-c", "scatter", input})
+	s.Require().NoError(rootCmd.Execute())
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().Len(ds.Settings, 1)
+	s.Equal("scatter", ds.Settings[0].ChartType())
+
+	scatterCfg, ok := ds.Settings[0].(*scatterchart.Config)
+	s.Require().True(ok)
+	s.Equal(shared.ScaleLinear, scatterCfg.Scale)
+}
+
+func (s *RootSuite) TestRunBenchmarkScaleBagChartOverride() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+	rootCharts = nil
+
+	rootCmd.SetArgs([]string{"-o", out, "-c", "line", "--chart", "line:scale={type=log;axes=x}", input})
+	s.Require().NoError(rootCmd.Execute())
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().Len(ds.Settings, 1)
+	lineCfg, ok := ds.Settings[0].(*linechart.Config)
+	s.Require().True(ok)
+	s.Equal("log", lineCfg.Scale.Type)
+	s.Equal([]string{"x"}, lineCfg.Scale.Axes)
+}
+
+func (s *RootSuite) TestRunBenchmarkScatterChartOverride() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+	rootCharts = nil
+
+	rootCmd.SetArgs([]string{"-o", out, "-c", "scatter", "--chart", "scatter:scale=log", input})
+	s.Require().NoError(rootCmd.Execute())
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().Len(ds.Settings, 1)
+
+	scatterCfg, ok := ds.Settings[0].(*scatterchart.Config)
+	s.Require().True(ok)
+	s.Equal(shared.ScaleLog, scatterCfg.Scale)
+}
+
+func (s *RootSuite) TestBakesDefaultCharts() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+
+	rootCmd.SetArgs([]string{"-o", out, input})
+	s.Require().NoError(rootCmd.Execute())
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().Len(ds.Settings, 3)
+	s.Equal("bar", ds.Settings[0].ChartType())
+	s.Equal("line", ds.Settings[1].ChartType())
+	s.Equal("pie", ds.Settings[2].ChartType())
+
+	_, ok := ds.Settings[0].(*barchart.Config)
+	s.Require().True(ok)
+	_, ok = ds.Settings[1].(*linechart.Config)
+	s.Require().True(ok)
+	_, ok = ds.Settings[2].(*piechart.Config)
+	s.Require().True(ok)
+}
+
+func (s *RootSuite) TestExecuteRunsRootCommand() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt", "")
+	out := filepath.Join(dir, "out.json")
+
+	rootCmd.SetArgs([]string{"-o", out, input})
+	Execute()
+	s.FileExists(out)
+}
+
+func (s *RootSuite) TestRunBenchmarkSortDeprecationWarning() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+
+	errStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-o", out, "-s", "asc", input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.Contains(errStr, "--sort is deprecated")
+	s.Contains(errStr, "--chart")
+	s.Contains(errStr, "Generated")
+	s.FileExists(out)
+}
+
+func (s *RootSuite) TestRunBenchmarkShowLabelsDeprecationWarning() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+
+	errStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-o", out, "-l", input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.Contains(errStr, "--show-labels is deprecated")
+	s.Contains(errStr, "--chart")
+	s.Contains(errStr, "Generated")
+	s.FileExists(out)
+}
+
+func (s *RootSuite) TestRunBenchmarkNoDeprecationWarningWhenFlagsUnset() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+
+	errStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.NotContains(errStr, "deprecated")
+	s.Contains(errStr, "Generated")
+	s.FileExists(out)
+}
+
+func (s *RootSuite) TestChartSubcommandSortNoDeprecationWarning() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+
+	errStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"bar", "-o", out, "-s", "asc", input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.NotContains(errStr, "deprecated")
+	s.FileExists(out)
+}
+
+func TestRootSuite(t *testing.T) {
+	suite.Run(t, new(RootSuite))
+}
+
+// RootAutoGroupSuite covers the csv/json auto-grouping end-to-end via
+// rootCmd.Execute, mirroring how a user runs `vizb data.csv`.
+type RootAutoGroupSuite struct {
+	suite.Suite
+	restoreOsExit func()
+}
+
+func (s *RootAutoGroupSuite) SetupTest() {
+	ResetTestState()
+	s.restoreOsExit, _ = testutil.TrapOsExitPanic(s.T())
+}
+
+func (s *RootAutoGroupSuite) TearDownTest() {
+	s.restoreOsExit()
+}
+
+func (s *RootAutoGroupSuite) writeCSV(dir, content string) string {
+	p := filepath.Join(dir, "data.csv")
+	s.Require().NoError(os.WriteFile(p, []byte(content), 0644))
+	return p
+}
+
+func (s *RootAutoGroupSuite) writeJSON(dir, content string) string {
+	p := filepath.Join(dir, "data.json")
+	s.Require().NoError(os.WriteFile(p, []byte(content), 0644))
+	return p
+}
+
+func (s *RootAutoGroupSuite) TestCSVAutoGroupAggregatesDuplicateKeys() {
+	dir := s.T().TempDir()
+	input := s.writeCSV(dir, "region,sells\nWest,10\nWest,20\nEast,5\n")
+	out := filepath.Join(dir, "out.json")
+
+	outStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-c", "bar", "-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.Contains(outStr, "Auto-grouped by column")
+	s.Contains(outStr, "Aggregated")
+	ds := testutil.ReadDataset(s.T(), out)
+	s.False(ds.PreserveRows)
+	s.Len(ds.Data, 2)
+	byX := map[string]float64{}
+	for _, dp := range ds.Data {
+		s.Require().Len(dp.Stats, 1)
+		byX[dp.XAxis] = *dp.Stats[0].Value
+	}
+	s.Equal(30.0, byX["West"])
+	s.Equal(5.0, byX["East"])
+}
+
+func (s *RootAutoGroupSuite) TestCSVAutoGroupsXAxisNoFlags() {
+	dir := s.T().TempDir()
+	input := s.writeCSV(dir, "region,sells\nWest,10\nEast,20\nNorth,30\n")
+	out := filepath.Join(dir, "out.json")
+
+	outStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-c", "bar", "-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.FileExists(out)
+	s.Contains(outStr, "Auto-grouped by column")
+	s.Contains(outStr, "Aggregated")
+	s.Contains(outStr, "unique")
+	s.NotContains(outStr, "Aggregating ")
+	ds := testutil.ReadDataset(s.T(), out)
+	// Auto-group picked the region column → every data point carries its
+	// region value on xAxis. (Axis.Label stays empty without {label} slots.)
+	s.Require().NotEmpty(ds.Axes)
+	var hasX bool
+	for _, ax := range ds.Axes {
+		if ax.Key == "x" {
+			hasX = true
+		}
+	}
+	s.True(hasX)
+	s.NotEmpty(ds.Data)
+	for _, dp := range ds.Data {
+		s.NotEmpty(dp.XAxis)
+	}
+}
+
+func (s *RootAutoGroupSuite) TestCSVAutoGroup3DPicksSingleColumnAndWarns() {
+	dir := s.T().TempDir()
+	csv := "region,product,sells\nWest,A,10\nEast,B,20\nNorth,C,30\nSouth,D,40\nCentral,E,50\nWest,F,60\nEast,G,70\n"
+	input := s.writeCSV(dir, csv)
+	out := filepath.Join(dir, "out.json")
+
+	stderr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-c", "bar", "--chart", "bar:3d", "-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.FileExists(out)
+	s.Contains(stderr, "Auto-grouped by column")
+	s.Contains(stderr, `flag "3d" skipped`)
+	s.Contains(stderr, "requires axis \"y\"")
+
+	ds := testutil.ReadDataset(s.T(), out)
+	s.NotEmpty(ds.Data)
+	for _, dp := range ds.Data {
+		s.NotEmpty(dp.XAxis)
+		s.Empty(dp.YAxis)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Reset exit flag
-			exitCalled = false
+	// The threeD flag was skipped (dropped) from the config.
+	barCfg, ok := ds.Settings[0].(*barchart.Config)
+	s.Require().True(ok)
+	s.Nil(barCfg.ThreeD)
+}
 
-			// Set up flags
-			tt.setupFlags()
+func (s *RootAutoGroupSuite) TestJSONAutoGroupsXAxisNoFlags() {
+	dir := s.T().TempDir()
+	input := s.writeJSON(dir, `[{"region":"West","sells":10},{"region":"East","sells":20}]`)
+	out := filepath.Join(dir, "out.json")
 
-			// Setup stdin if needed
-			restore := tt.setupStdin()
-			defer restore()
+	_ = testutil.CaptureStdout(func() {
+		rootCmd.SetArgs([]string{"-c", "bar", "-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
 
-			// Capture stdout and stderr
-			oldStdout := os.Stdout
-			oldStderr := os.Stderr
-			r, w, _ := os.Pipe()
-			os.Stdout = w
-			os.Stderr = w
-
-			// Create a cobra command for testing
-			cmd := &cobra.Command{}
-			args := tt.argsFunc()
-
-			// Run the function and catch any os.Exit calls
-			if tt.expectExit {
-				// Capture both stdout and stderr
-				oldStdout := os.Stdout
-				oldStderr := os.Stderr
-				r, w, _ := os.Pipe()
-				os.Stdout = w
-				os.Stderr = w
-
-				// Use WithSafe to handle panic
-				err := shared.WithSafe("runBenchmark", func() {
-					runBenchmark(cmd, args)
-				})
-
-				// Close write end and read output
-				w.Close()
-				var buf bytes.Buffer
-				io.Copy(&buf, r)
-
-				// Restore stdout and stderr
-				os.Stdout = oldStdout
-				os.Stderr = oldStderr
-
-				// Verify assertions
-				if err == nil {
-					t.Error("Expected shared.OsExit to be called")
-				}
-				assert.True(t, exitCalled, "shared.OsExit should have been called")
-				assert.Contains(t, buf.String(), tt.expectedOutput)
-			} else {
-				runBenchmark(cmd, args)
-
-				// Close write end of pipe
-				w.Close()
-
-				// Read output
-				var buf bytes.Buffer
-				io.Copy(&buf, r)
-
-				// Restore stdout and stderr
-				os.Stdout = oldStdout
-				os.Stderr = oldStderr
-
-				// Validate assertions
-				assert.Contains(t, buf.String(), tt.expectedOutput)
-			}
-		})
+	s.FileExists(out)
+	ds := testutil.ReadDataset(s.T(), out)
+	s.Require().NotEmpty(ds.Axes)
+	for _, dp := range ds.Data {
+		s.NotEmpty(dp.XAxis)
 	}
+}
+
+func (s *RootAutoGroupSuite) TestExplicitGroupOverridesAutoGroup() {
+	dir := s.T().TempDir()
+	input := s.writeCSV(dir, "region,product,sells\nWest,A,10\nEast,B,20\n")
+	out := filepath.Join(dir, "out.json")
+
+	outStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-c", "bar", "-g", "product", "-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.FileExists(out)
+	s.NotContains(outStr, "Auto-grouped")
+	ds := testutil.ReadDataset(s.T(), out)
+	// Explicit -g product → xAxis values are the product column values.
+	xAxisVals := make([]string, 0, len(ds.Data))
+	for _, dp := range ds.Data {
+		xAxisVals = append(xAxisVals, dp.XAxis)
+	}
+	s.ElementsMatch([]string{"A", "B"}, xAxisVals)
+}
+
+func (s *RootAutoGroupSuite) TestBenchmarkParserUnchangedNoGroup() {
+	dir := s.T().TempDir()
+	input := testutil.WriteBenchFile(s.T(), dir, "valid.txt",
+		`BenchmarkTest-8    1000000    1234 ns/op    1000 B/op    10 allocs/op`)
+	out := filepath.Join(dir, "out.json")
+
+	outStr := testutil.CaptureStderr(func() {
+		rootCmd.SetArgs([]string{"-c", "bar", "-o", out, input})
+		s.Require().NoError(rootCmd.Execute())
+	})
+
+	s.FileExists(out)
+	s.NotContains(outStr, "Auto-grouped")
+}
+
+func TestRootAutoGroupSuite(t *testing.T) {
+	suite.Run(t, new(RootAutoGroupSuite))
 }

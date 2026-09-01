@@ -1,136 +1,177 @@
-import { reactive, computed } from 'vue'
-import type { Sort, ChartType, ScaleType, Settings as BenchmarkSettings } from '../types'
-import { DEFAULT_SETTINGS } from './constants'
+import { computed, ref, watch } from 'vue'
+import type { ChartConfig, ChartType, Sort, ScaleInput, ScaleType } from '../types'
+import { activeDataset } from './useDataPoint'
+import { isValidIndex } from '../lib/utils'
+import { applyScaleType, parseScale } from '../lib/scale'
+import { activeThemeName, applyTheme, isAvailableThemeName, normalizeTheme } from '../lib/themes'
 
-type StoreSettings = {
-  sort: Sort
-  showLabels: boolean
-  charts: ChartType[]
-  activeChartIndex: number
-  selectedSwapIndexMap: Map<number, number>
-  isDark: boolean
-  scale: ScaleType
-}
+// Module-level singleton state. `activeChartIndex` is the cursor into
+// `activeDataset.value.settings`; the dataset IS the source of truth — no flat
+// global state anymore. `setSort` / `setScale` / etc. mutate the active
+// config in place, which the Vue reactivity propagates everywhere.
+const activeChartIndex = ref(0)
+const isDark = ref(false)
+const themeName = activeThemeName
 
-const settings = reactive<StoreSettings>({
-  sort: { enabled: false, order: 'asc' },
-  showLabels: false,
-  charts: DEFAULT_SETTINGS.charts,
-  activeChartIndex: 0,
-  selectedSwapIndexMap: new Map(),
-  isDark: false,
-  scale: 'linear',
-})
+// Dark mode is gated so the module is import-safe in node/test environments
+// (no `localStorage` / `window` access at load time).
+const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined'
 
-const chartType = computed<ChartType>(() => settings.charts[settings.activeChartIndex] ?? 'bar')
-
-let initialized = false
-
-// Initialize dark mode from localStorage or system preference
-const initializeDarkMode = () => {
-  const saved = localStorage.getItem('dark-mode')
-
-  if (saved !== null) {
-    settings.isDark = saved === 'true'
-  } else {
-    // Check system preference
-    settings.isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  }
-
-  updateHtmlClass()
-}
-
-// Update HTML class based on dark mode state
 const updateHtmlClass = () => {
+  if (!isBrowser) return
   const html = document.documentElement
-  let [addClass, removeClass] = ['light', 'dark']
-
-  if (settings.isDark) {
-    ;[addClass, removeClass] = [removeClass, addClass]
-  }
-
-  html.classList.add(addClass)
-  html.classList.remove(removeClass)
+  html.classList.toggle('dark', isDark.value)
+  html.classList.toggle('light', !isDark.value)
 }
 
-// Toggle dark mode
-const toggleDark = () => {
-  settings.isDark = !settings.isDark
-  localStorage.setItem('dark-mode', settings.isDark.toString())
+const initializeDarkMode = () => {
+  if (!isBrowser) return
+  const saved = localStorage.getItem('dark-mode')
+  if (saved !== null) {
+    isDark.value = saved === 'true'
+  } else {
+    isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
   updateHtmlClass()
 }
 
-// Initialize on module load
 initializeDarkMode()
 
-export function useSettingsStore() {
-  const setSort = (sort: Sort) => {
-    settings.sort = sort
+// Apply a stored theme name only when it is in the available set for the
+// current report (at module load that is only UI default until dataset themes
+// are registered). Unknown legacy names and custom hex strings are ignored.
+if (isBrowser) {
+  const savedTheme = localStorage.getItem('color-theme')
+  if (savedTheme !== null && isAvailableThemeName(savedTheme)) {
+    applyTheme(savedTheme)
   }
+}
 
-  const setScale = (scale: ScaleType) => {
-    settings.scale = scale
+const toggleDark = () => {
+  isDark.value = !isDark.value
+  if (isBrowser) {
+    localStorage.setItem('dark-mode', isDark.value.toString())
   }
+  updateHtmlClass()
+}
 
-  const setShowLabels = (show: boolean) => {
-    settings.showLabels = show
-  }
-
-  const setCharts = (list: ChartType[]) => {
-    const filtered = list.filter((c) => DEFAULT_SETTINGS.charts.includes(c))
-    settings.charts = filtered.length ? filtered : DEFAULT_SETTINGS.charts
-
-    // clamp index
-    if (settings.activeChartIndex < 0 || settings.activeChartIndex >= settings.charts.length) {
-      settings.activeChartIndex = 0
+/**
+ * Pick the active theme for the current dataset.
+ * Prefer localStorage `color-theme` when that name is still in the available
+ * set for this report; otherwise use the author default (`themes[0]` / default
+ * / legacy hex) passed by the caller.
+ */
+const initializeTheme = (datasetTheme?: string) => {
+  if (isBrowser) {
+    const saved = localStorage.getItem('color-theme')
+    if (saved !== null && isAvailableThemeName(saved)) {
+      applyTheme(saved)
+      return
     }
   }
+  applyTheme(datasetTheme)
+}
+
+/** Apply a theme only when its name is in the available set; persist the name. */
+const setTheme = (theme: string) => {
+  if (!isAvailableThemeName(theme)) return
+  const normalized = normalizeTheme(theme)
+  applyTheme(normalized)
+  if (isBrowser) localStorage.setItem('color-theme', normalized)
+}
+
+export function useSettingsStore() {
+  const activeConfig = computed<ChartConfig | undefined>(
+    () => activeDataset.value?.settings[activeChartIndex.value]
+  )
+
+  const chartType = computed<ChartType>(() => activeConfig.value?.type ?? 'bar')
+
+  // Clamp the active index when the active dataset's chart list shrinks (e.g.
+  // a settings change drops one of the bundled charts).
+  watch(
+    () => activeDataset.value?.settings.length,
+    (len) => {
+      if (len !== undefined && activeChartIndex.value >= len) {
+        activeChartIndex.value = 0
+      }
+    }
+  )
 
   const setActiveChartIndex = (index: number) => {
-    if (index >= 0 && index < settings.charts.length) {
-      settings.activeChartIndex = index
+    const len = activeDataset.value?.settings.length ?? 0
+    if (isValidIndex(index, len)) {
+      activeChartIndex.value = index
     }
   }
 
+  // setChartType locates the first config with the requested type and makes it
+  // active. No-op if the active dataset has no config of that type.
   const setChartType = (type: ChartType) => {
-    const idx = settings.charts.indexOf(type)
+    const settings: ChartConfig[] = activeDataset.value?.settings ?? []
+    const idx = settings.findIndex((s: ChartConfig) => s.type === type)
     if (idx !== -1) {
-      settings.activeChartIndex = idx
+      activeChartIndex.value = idx
     }
   }
 
-  const initializeFromBenchmark = (inputSettings: BenchmarkSettings, force = false) => {
-    if (!initialized || force) {
-      settings.sort = inputSettings.sort
-      settings.showLabels = inputSettings.showLabels
-      settings.scale = inputSettings.scale || 'linear'
-
-      setCharts(inputSettings.charts ?? DEFAULT_SETTINGS.charts)
-      setActiveChartIndex(0)
-      initialized = true
-    }
+  // Per-field setters write the active config in place via `patchActive`.
+  // Each config shape carries only the fields that apply to its chart type, so
+  // `scale` and `threeDRotate` are only set on bar/line configs (the others
+  // have no such field). The narrowing uses TypeScript's optional-field
+  // semantics — no runtime `'field' in cfg` guard. SettingsPanel already gates
+  // by `appliesTo` in `fieldRegistry`, so these setters are only called for
+  // chart types that carry the field. The Go migration does NOT pre-populate
+  // `threeDRotate` (it didn't exist in v0.12.0), so a `'threeDRotate' in cfg`
+  // guard would silently no-op the first toggle on a freshly migrated config.
+  const patchActive = (fields: Record<string, unknown>, when?: (cfg: ChartConfig) => boolean) => {
+    const cfg = activeConfig.value
+    if (!cfg || (when && !when(cfg))) return
+    Object.assign(cfg, fields)
   }
 
-  const setSelectedSwapIndex = (benchmarkId: number, index: number) => {
-    settings.selectedSwapIndexMap.set(benchmarkId, index)
-  }
+  const currentScale = () => (activeConfig.value as { scale?: ScaleInput } | undefined)?.scale
 
-  const getSelectedSwapIndex = (benchmarkId: number): number | undefined => {
-    return settings.selectedSwapIndexMap.get(benchmarkId)
+  const setSort = (sort: Sort) => patchActive({ sort: { ...sort } })
+  const setScale = (scale: ScaleType) => {
+    const current = currentScale()
+    if (parseScale(current).type === scale) return
+    patchActive({ scale: applyScaleType(current, scale) })
   }
+  const setStack = (stack: boolean) =>
+    patchActive(stack ? { stack, scale: applyScaleType(currentScale(), 'linear') } : { stack })
+  const setShowLabels = (show: boolean) => patchActive({ showLabels: show })
+  const setSmooth = (smooth: boolean) => patchActive({ smooth }, (cfg) => cfg.type === 'line')
+  const setHorizontal = (horizontal: boolean) =>
+    patchActive({ horizontal }, (cfg) => cfg.type === 'bar')
+  const setThreeDRotate = (rotate: boolean) => patchActive({ threeDRotate: rotate })
+  const setSwap = (swap: string | undefined) => patchActive({ swap })
+  const setThreeD = (enabled: boolean) => patchActive({ threeD: enabled })
+  const setThreeDVisualMap = (enabled: boolean) => patchActive({ threeDVisualMap: enabled })
+  const setVisualMap = (enabled: boolean) =>
+    patchActive({ visualMap: enabled }, (cfg) => cfg.type === 'scatter')
 
   return {
-    settings,
+    activeChartIndex,
+    activeConfig,
     chartType,
-    setSort,
-    setScale,
-    setShowLabels,
-    setCharts,
+    isDark,
+    themeName,
     setActiveChartIndex,
     setChartType,
+    setSort,
+    setScale,
+    setStack,
+    setShowLabels,
+    setSmooth,
+    setHorizontal,
+    setThreeDRotate,
+    setSwap,
+    setThreeD,
+    setThreeDVisualMap,
+    setVisualMap,
+    initializeTheme,
+    setTheme,
     toggleDark,
-    initializeFromBenchmark,
-    setSelectedSwapIndex,
-    getSelectedSwapIndex,
   }
 }

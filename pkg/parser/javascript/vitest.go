@@ -2,7 +2,8 @@ package javascript
 
 import (
 	"bufio"
-	"os"
+	"fmt"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -25,15 +26,10 @@ func parseNum(s string) float64 {
 	return n
 }
 
-func ParseVitestBenchmark(filename string) []shared.BenchmarkData {
-	f, err := os.Open(filename)
-	if err != nil {
-		shared.ExitWithError("Error opening file", err)
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	var results []shared.BenchmarkData
+// ParseVitestBenchmark converts Vitest benchmark output into data points.
+func ParseVitestBenchmark(input io.Reader, cfg parser.Config) ([]shared.DataPoint, parser.Config, *shared.Meta, error) {
+	scanner := bufio.NewScanner(input)
+	var results []shared.DataPoint
 	var currentSuite string
 
 	for scanner.Scan() {
@@ -67,7 +63,11 @@ func ParseVitestBenchmark(filename string) []shared.BenchmarkData {
 			name = currentSuite + "/" + name
 		}
 
-		if !parser.ShouldIncludeBenchmark(name) {
+		include, err := parser.ShouldIncludeBenchmark(name, cfg)
+		if err != nil {
+			return nil, cfg, nil, err
+		}
+		if !include {
 			continue
 		}
 
@@ -84,35 +84,36 @@ func ParseVitestBenchmark(filename string) []shared.BenchmarkData {
 		rme := parseNum(rmeStr)
 		samples := parseNum(fields[10])
 
-		group, groupErr := parser.GroupBenchmarkName(name)
+		group, groupErr := parser.GroupBenchmarkName(name, cfg)
 		if groupErr != nil {
-			shared.ExitWithError("Error parsing vitest benchmark name", groupErr)
+			return nil, cfg, nil, fmt.Errorf("parse vitest benchmark name: %w", groupErr)
 		}
 
-		benchName, xAxis, yAxis := group["name"], group["xAxis"], group["yAxis"]
+		benchName, xAxis, yAxis, zAxis := group["name"], group["xAxis"], group["yAxis"], group["zAxis"]
 
-		results = append(results, shared.BenchmarkData{
+		results = append(results, shared.DataPoint{
 			Name:  benchName,
 			XAxis: xAxis,
 			YAxis: yAxis,
+			ZAxis: zAxis,
 			Stats: []shared.Stat{
-				{Type: "Throughput avg (ops/s)", Value: hz},
-				{Type: utils.CreateStatType("Latency min", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(minVal, "ms", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency max", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(maxVal, "ms", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency avg", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(mean, "ms", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency p75", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(p75, "ms", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency p99", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(p99, "ms", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency p995", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(p995, "ms", shared.FlagState.TimeUnit)},
-				{Type: utils.CreateStatType("Latency p999", shared.FlagState.TimeUnit, ""), Value: utils.ConvertTime(p999, "ms", shared.FlagState.TimeUnit)},
-				{Type: "RME (%)", Value: rme, Symbol: "±"},
-				{Type: "Samples", Value: samples},
+				{Type: "Throughput avg (ops/s)", Value: shared.F64(utils.FormatNumber(hz, "", cfg.Round))},
+				{Type: utils.CreateStatType("Latency min", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(minVal, "ms", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency max", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(maxVal, "ms", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency avg", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(mean, "ms", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency p75", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(p75, "ms", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency p99", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(p99, "ms", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency p995", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(p995, "ms", cfg.TimeUnit, cfg.Round))},
+				{Type: utils.CreateStatType("Latency p999", cfg.TimeUnit, ""), Value: shared.F64(utils.ConvertTime(p999, "ms", cfg.TimeUnit, cfg.Round))},
+				{Type: "RME (%)", Value: shared.F64(utils.FormatNumber(rme, "", cfg.Round)), Symbol: "±"},
+				{Type: "Samples", Value: shared.F64(utils.FormatNumber(samples, "", cfg.Round))},
 			},
 		})
 	}
 
 	if err := scanner.Err(); err != nil {
-		shared.ExitWithError("failed to read file", err)
+		return nil, cfg, nil, fmt.Errorf("read vitest benchmark: %w", err)
 	}
 
-	return results
+	return results, cfg, nil, nil
 }

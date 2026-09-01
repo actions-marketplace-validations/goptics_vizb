@@ -2,23 +2,57 @@
   {
     "name": "HTTP Routing Benchmarks",
     "description": "Performance comparison of popular Go HTTP Routers",
-    "pkg": "github.com/gin-gonic/go-http-routing-benchmark",
     "timestamp": "2025-11-15T10:30:00Z",
-    "settings": {
-      "charts": [
-        "bar",
-        "line",
-        "pie"
-      ],
-      "sort": {
-        "enabled": true,
-        "order": "asc"
+    "axes": [
+      {
+        "key": "x"
       },
-      "showLabels": false
-    },
+      {
+        "key": "y"
+      }
+    ],
+    "settings": [
+      {
+        "type": "line",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false,
+        "scale": "log",
+        "stat": {
+          "enabled": true,
+          "math": []
+        }
+      },
+      {
+        "type": "pie",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false
+      },
+      {
+        "type": "heatmap",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false
+      },
+      {
+        "type": "radar",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false
+      }
+    ],
     "data": [
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Gin",
         "stats": [
           {
@@ -38,7 +72,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Ace",
         "stats": [
           {
@@ -58,7 +92,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Aero",
         "stats": [
           {
@@ -78,7 +112,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "HttpServeMux",
         "stats": [
           {
@@ -98,7 +132,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Beego",
         "stats": [
           {
@@ -120,7 +154,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Bear",
         "stats": [
           {
@@ -142,7 +176,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Bone",
         "stats": [
           {
@@ -162,7 +196,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Chi",
         "stats": [
           {
@@ -184,7 +218,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Denco",
         "stats": [
           {
@@ -204,7 +238,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Echo",
         "stats": [
           {
@@ -224,7 +258,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -246,7 +280,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Goji",
         "stats": [
           {
@@ -266,7 +300,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -288,7 +322,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -310,7 +344,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -332,7 +366,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -354,7 +388,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -374,7 +408,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -394,7 +428,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -414,7 +448,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -434,7 +468,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "LARS",
         "stats": [
           {
@@ -454,7 +488,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -476,7 +510,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Martini",
         "stats": [
           {
@@ -498,7 +532,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Pat",
         "stats": [
           {
@@ -520,7 +554,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Possum",
         "stats": [
           {
@@ -542,7 +576,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "R2router",
         "stats": [
           {
@@ -564,7 +598,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -584,7 +618,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Tango",
         "stats": [
           {
@@ -606,7 +640,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -628,7 +662,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -650,7 +684,7 @@
         ]
       },
       {
-        "name": "StaticAll",
+        "yAxis": "StaticAll",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -672,7 +706,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Gin",
         "stats": [
           {
@@ -692,7 +726,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Ace",
         "stats": [
           {
@@ -712,7 +746,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Aero",
         "stats": [
           {
@@ -732,7 +766,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Bear",
         "stats": [
           {
@@ -754,7 +788,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Beego",
         "stats": [
           {
@@ -776,7 +810,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Bone",
         "stats": [
           {
@@ -798,7 +832,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Chi",
         "stats": [
           {
@@ -820,7 +854,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Denco",
         "stats": [
           {
@@ -842,7 +876,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Echo",
         "stats": [
           {
@@ -862,7 +896,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -884,7 +918,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Goji",
         "stats": [
           {
@@ -906,7 +940,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -928,7 +962,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -950,7 +984,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -972,7 +1006,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -994,7 +1028,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -1016,7 +1050,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -1036,7 +1070,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -1058,7 +1092,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -1080,7 +1114,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "LARS",
         "stats": [
           {
@@ -1100,7 +1134,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -1122,7 +1156,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Martini",
         "stats": [
           {
@@ -1144,7 +1178,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Pat",
         "stats": [
           {
@@ -1166,7 +1200,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Possum",
         "stats": [
           {
@@ -1188,7 +1222,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "R2router",
         "stats": [
           {
@@ -1210,7 +1244,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -1232,7 +1266,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Tango",
         "stats": [
           {
@@ -1254,7 +1288,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -1276,7 +1310,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -1298,7 +1332,7 @@
         ]
       },
       {
-        "name": "Param",
+        "yAxis": "Param",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -1320,7 +1354,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Ace",
         "stats": [
           {
@@ -1340,7 +1374,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Aero",
         "stats": [
           {
@@ -1360,7 +1394,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Bear",
         "stats": [
           {
@@ -1382,7 +1416,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Beego",
         "stats": [
           {
@@ -1404,7 +1438,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Bone",
         "stats": [
           {
@@ -1426,7 +1460,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Chi",
         "stats": [
           {
@@ -1448,7 +1482,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Denco",
         "stats": [
           {
@@ -1470,7 +1504,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Echo",
         "stats": [
           {
@@ -1490,7 +1524,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Gin",
         "stats": [
           {
@@ -1510,7 +1544,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -1532,7 +1566,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Goji",
         "stats": [
           {
@@ -1554,7 +1588,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -1576,7 +1610,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -1598,7 +1632,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -1620,7 +1654,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -1642,7 +1676,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -1664,7 +1698,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -1684,7 +1718,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -1706,7 +1740,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -1728,7 +1762,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "LARS",
         "stats": [
           {
@@ -1748,7 +1782,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -1770,7 +1804,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Martini",
         "stats": [
           {
@@ -1792,7 +1826,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Pat",
         "stats": [
           {
@@ -1814,7 +1848,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Possum",
         "stats": [
           {
@@ -1836,7 +1870,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "R2router",
         "stats": [
           {
@@ -1858,7 +1892,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -1880,7 +1914,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Tango",
         "stats": [
           {
@@ -1902,7 +1936,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -1924,7 +1958,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -1946,7 +1980,7 @@
         ]
       },
       {
-        "name": "Param5",
+        "yAxis": "Param5",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -1968,7 +2002,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Ace",
         "stats": [
           {
@@ -1988,7 +2022,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Aero",
         "stats": [
           {
@@ -2008,7 +2042,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Bear",
         "stats": [
           {
@@ -2030,7 +2064,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Beego",
         "stats": [
           {
@@ -2052,7 +2086,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Bone",
         "stats": [
           {
@@ -2074,7 +2108,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Chi",
         "stats": [
           {
@@ -2096,7 +2130,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Denco",
         "stats": [
           {
@@ -2118,7 +2152,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Echo",
         "stats": [
           {
@@ -2138,7 +2172,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Gin",
         "stats": [
           {
@@ -2158,7 +2192,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -2180,7 +2214,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Goji",
         "stats": [
           {
@@ -2202,7 +2236,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -2224,7 +2258,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -2246,7 +2280,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -2268,7 +2302,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -2290,7 +2324,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -2312,7 +2346,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -2332,7 +2366,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -2354,7 +2388,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -2376,7 +2410,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "LARS",
         "stats": [
           {
@@ -2396,7 +2430,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -2418,7 +2452,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Martini",
         "stats": [
           {
@@ -2440,7 +2474,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Pat",
         "stats": [
           {
@@ -2462,7 +2496,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Possum",
         "stats": [
           {
@@ -2484,7 +2518,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "R2router",
         "stats": [
           {
@@ -2506,7 +2540,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -2528,7 +2562,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Tango",
         "stats": [
           {
@@ -2550,7 +2584,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -2572,7 +2606,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -2594,7 +2628,7 @@
         ]
       },
       {
-        "name": "Param20",
+        "yAxis": "Param20",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -2616,7 +2650,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Ace",
         "stats": [
           {
@@ -2638,7 +2672,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Aero",
         "stats": [
           {
@@ -2658,7 +2692,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Bear",
         "stats": [
           {
@@ -2680,7 +2714,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Beego",
         "stats": [
           {
@@ -2702,7 +2736,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Bone",
         "stats": [
           {
@@ -2724,7 +2758,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Chi",
         "stats": [
           {
@@ -2746,7 +2780,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Denco",
         "stats": [
           {
@@ -2768,7 +2802,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Echo",
         "stats": [
           {
@@ -2790,7 +2824,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Gin",
         "stats": [
           {
@@ -2810,7 +2844,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -2832,7 +2866,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Goji",
         "stats": [
           {
@@ -2854,7 +2888,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -2876,7 +2910,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -2898,7 +2932,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -2920,7 +2954,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -2942,7 +2976,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -2964,7 +2998,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -2984,7 +3018,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -3006,7 +3040,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -3028,7 +3062,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "LARS",
         "stats": [
           {
@@ -3048,7 +3082,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -3070,7 +3104,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Martini",
         "stats": [
           {
@@ -3092,7 +3126,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Pat",
         "stats": [
           {
@@ -3114,7 +3148,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Possum",
         "stats": [
           {
@@ -3136,7 +3170,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "R2router",
         "stats": [
           {
@@ -3158,7 +3192,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -3180,7 +3214,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Tango",
         "stats": [
           {
@@ -3202,7 +3236,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -3224,7 +3258,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -3246,7 +3280,7 @@
         ]
       },
       {
-        "name": "ParamWrite",
+        "yAxis": "ParamWrite",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -3268,7 +3302,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Gin",
         "stats": [
           {
@@ -3288,7 +3322,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Ace",
         "stats": [
           {
@@ -3308,7 +3342,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Aero",
         "stats": [
           {
@@ -3328,7 +3362,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Bear",
         "stats": [
           {
@@ -3350,7 +3384,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Beego",
         "stats": [
           {
@@ -3372,7 +3406,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Bone",
         "stats": [
           {
@@ -3394,7 +3428,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Chi",
         "stats": [
           {
@@ -3416,7 +3450,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Denco",
         "stats": [
           {
@@ -3436,7 +3470,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Echo",
         "stats": [
           {
@@ -3456,7 +3490,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -3478,7 +3512,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Goji",
         "stats": [
           {
@@ -3498,7 +3532,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -3520,7 +3554,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -3542,7 +3576,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -3564,7 +3598,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -3586,7 +3620,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -3606,7 +3640,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -3626,7 +3660,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -3646,7 +3680,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -3666,7 +3700,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "LARS",
         "stats": [
           {
@@ -3686,7 +3720,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -3708,7 +3742,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Martini",
         "stats": [
           {
@@ -3730,7 +3764,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Pat",
         "stats": [
           {
@@ -3752,7 +3786,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Possum",
         "stats": [
           {
@@ -3774,7 +3808,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "R2router",
         "stats": [
           {
@@ -3796,7 +3830,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -3816,7 +3850,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Tango",
         "stats": [
           {
@@ -3838,7 +3872,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -3860,7 +3894,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -3882,7 +3916,7 @@
         ]
       },
       {
-        "name": "GithubStatic",
+        "yAxis": "GithubStatic",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -3904,7 +3938,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Ace",
         "stats": [
           {
@@ -3924,7 +3958,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Aero",
         "stats": [
           {
@@ -3944,7 +3978,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Bear",
         "stats": [
           {
@@ -3966,7 +4000,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Beego",
         "stats": [
           {
@@ -3988,7 +4022,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Bone",
         "stats": [
           {
@@ -4010,7 +4044,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Chi",
         "stats": [
           {
@@ -4032,7 +4066,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Denco",
         "stats": [
           {
@@ -4054,7 +4088,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Echo",
         "stats": [
           {
@@ -4074,7 +4108,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Gin",
         "stats": [
           {
@@ -4094,7 +4128,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -4116,7 +4150,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Goji",
         "stats": [
           {
@@ -4138,7 +4172,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -4160,7 +4194,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -4182,7 +4216,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -4204,7 +4238,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -4226,7 +4260,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -4248,7 +4282,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -4268,7 +4302,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -4290,7 +4324,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -4312,7 +4346,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "LARS",
         "stats": [
           {
@@ -4332,7 +4366,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -4354,7 +4388,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Martini",
         "stats": [
           {
@@ -4376,7 +4410,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Pat",
         "stats": [
           {
@@ -4398,7 +4432,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Possum",
         "stats": [
           {
@@ -4420,7 +4454,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "R2router",
         "stats": [
           {
@@ -4442,7 +4476,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -4464,7 +4498,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Tango",
         "stats": [
           {
@@ -4486,7 +4520,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -4508,7 +4542,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -4530,7 +4564,7 @@
         ]
       },
       {
-        "name": "GithubParam",
+        "yAxis": "GithubParam",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -4552,7 +4586,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Ace",
         "stats": [
           {
@@ -4572,7 +4606,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Aero",
         "stats": [
           {
@@ -4592,7 +4626,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Bear",
         "stats": [
           {
@@ -4614,7 +4648,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Beego",
         "stats": [
           {
@@ -4636,7 +4670,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Bone",
         "stats": [
           {
@@ -4658,7 +4692,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Chi",
         "stats": [
           {
@@ -4680,7 +4714,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Denco",
         "stats": [
           {
@@ -4702,7 +4736,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Echo",
         "stats": [
           {
@@ -4722,7 +4756,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Gin",
         "stats": [
           {
@@ -4742,7 +4776,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -4764,7 +4798,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Goji",
         "stats": [
           {
@@ -4786,7 +4820,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -4808,7 +4842,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -4830,7 +4864,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -4852,7 +4886,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -4874,7 +4908,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -4896,7 +4930,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -4916,7 +4950,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -4938,7 +4972,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -4960,7 +4994,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "LARS",
         "stats": [
           {
@@ -4980,7 +5014,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -5002,7 +5036,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Martini",
         "stats": [
           {
@@ -5024,7 +5058,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Pat",
         "stats": [
           {
@@ -5046,7 +5080,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Possum",
         "stats": [
           {
@@ -5068,7 +5102,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "R2router",
         "stats": [
           {
@@ -5090,7 +5124,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -5112,7 +5146,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Tango",
         "stats": [
           {
@@ -5134,7 +5168,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -5156,7 +5190,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -5178,7 +5212,7 @@
         ]
       },
       {
-        "name": "GithubAll",
+        "yAxis": "GithubAll",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -5200,7 +5234,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Gin",
         "stats": [
           {
@@ -5220,7 +5254,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Ace",
         "stats": [
           {
@@ -5240,7 +5274,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Aero",
         "stats": [
           {
@@ -5260,7 +5294,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Bear",
         "stats": [
           {
@@ -5282,7 +5316,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Beego",
         "stats": [
           {
@@ -5304,7 +5338,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Bone",
         "stats": [
           {
@@ -5326,7 +5360,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Chi",
         "stats": [
           {
@@ -5348,7 +5382,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Denco",
         "stats": [
           {
@@ -5368,7 +5402,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Echo",
         "stats": [
           {
@@ -5388,7 +5422,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -5410,7 +5444,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Goji",
         "stats": [
           {
@@ -5430,7 +5464,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -5452,7 +5486,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -5474,7 +5508,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -5496,7 +5530,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -5518,7 +5552,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -5538,7 +5572,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -5558,7 +5592,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -5578,7 +5612,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -5598,7 +5632,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "LARS",
         "stats": [
           {
@@ -5618,7 +5652,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -5640,7 +5674,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Martini",
         "stats": [
           {
@@ -5662,7 +5696,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Pat",
         "stats": [
           {
@@ -5684,7 +5718,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Possum",
         "stats": [
           {
@@ -5706,7 +5740,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "R2router",
         "stats": [
           {
@@ -5728,7 +5762,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -5748,7 +5782,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Tango",
         "stats": [
           {
@@ -5770,7 +5804,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -5792,7 +5826,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -5814,7 +5848,7 @@
         ]
       },
       {
-        "name": "GPlusStatic",
+        "yAxis": "GPlusStatic",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -5836,7 +5870,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Ace",
         "stats": [
           {
@@ -5856,7 +5890,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Aero",
         "stats": [
           {
@@ -5876,7 +5910,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Bear",
         "stats": [
           {
@@ -5898,7 +5932,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Beego",
         "stats": [
           {
@@ -5920,7 +5954,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Bone",
         "stats": [
           {
@@ -5942,7 +5976,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Chi",
         "stats": [
           {
@@ -5964,7 +5998,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Denco",
         "stats": [
           {
@@ -5986,7 +6020,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Echo",
         "stats": [
           {
@@ -6006,7 +6040,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Gin",
         "stats": [
           {
@@ -6026,7 +6060,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -6048,7 +6082,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Goji",
         "stats": [
           {
@@ -6070,7 +6104,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -6092,7 +6126,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -6114,7 +6148,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -6136,7 +6170,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -6158,7 +6192,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -6180,7 +6214,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -6200,7 +6234,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -6222,7 +6256,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -6244,7 +6278,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "LARS",
         "stats": [
           {
@@ -6264,7 +6298,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -6286,7 +6320,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Martini",
         "stats": [
           {
@@ -6308,7 +6342,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Pat",
         "stats": [
           {
@@ -6330,7 +6364,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Possum",
         "stats": [
           {
@@ -6352,7 +6386,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "R2router",
         "stats": [
           {
@@ -6374,7 +6408,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -6396,7 +6430,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Tango",
         "stats": [
           {
@@ -6418,7 +6452,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -6440,7 +6474,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -6462,7 +6496,7 @@
         ]
       },
       {
-        "name": "GPlusParam",
+        "yAxis": "GPlusParam",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -6484,7 +6518,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Ace",
         "stats": [
           {
@@ -6504,7 +6538,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Aero",
         "stats": [
           {
@@ -6524,7 +6558,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Bear",
         "stats": [
           {
@@ -6546,7 +6580,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Beego",
         "stats": [
           {
@@ -6568,7 +6602,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Bone",
         "stats": [
           {
@@ -6590,7 +6624,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Chi",
         "stats": [
           {
@@ -6612,7 +6646,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Denco",
         "stats": [
           {
@@ -6634,7 +6668,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Echo",
         "stats": [
           {
@@ -6654,7 +6688,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Gin",
         "stats": [
           {
@@ -6674,7 +6708,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -6696,7 +6730,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Goji",
         "stats": [
           {
@@ -6718,7 +6752,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -6740,7 +6774,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -6762,7 +6796,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -6784,7 +6818,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -6806,7 +6840,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -6828,7 +6862,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -6848,7 +6882,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -6870,7 +6904,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -6892,7 +6926,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "LARS",
         "stats": [
           {
@@ -6912,7 +6946,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -6934,7 +6968,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Martini",
         "stats": [
           {
@@ -6956,7 +6990,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Pat",
         "stats": [
           {
@@ -6978,7 +7012,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Possum",
         "stats": [
           {
@@ -7000,7 +7034,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "R2router",
         "stats": [
           {
@@ -7022,7 +7056,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -7044,7 +7078,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Tango",
         "stats": [
           {
@@ -7066,7 +7100,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -7088,7 +7122,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -7110,7 +7144,7 @@
         ]
       },
       {
-        "name": "GPlus2Params",
+        "yAxis": "GPlus2Params",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -7132,7 +7166,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Ace",
         "stats": [
           {
@@ -7152,7 +7186,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Aero",
         "stats": [
           {
@@ -7172,7 +7206,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Bear",
         "stats": [
           {
@@ -7194,7 +7228,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Beego",
         "stats": [
           {
@@ -7216,7 +7250,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Bone",
         "stats": [
           {
@@ -7238,7 +7272,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Chi",
         "stats": [
           {
@@ -7260,7 +7294,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Denco",
         "stats": [
           {
@@ -7282,7 +7316,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Echo",
         "stats": [
           {
@@ -7302,7 +7336,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Gin",
         "stats": [
           {
@@ -7322,7 +7356,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -7344,7 +7378,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Goji",
         "stats": [
           {
@@ -7366,7 +7400,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -7388,7 +7422,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -7410,7 +7444,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -7432,7 +7466,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -7454,7 +7488,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -7476,7 +7510,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -7496,7 +7530,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -7518,7 +7552,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -7540,7 +7574,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "LARS",
         "stats": [
           {
@@ -7560,7 +7594,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -7582,7 +7616,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Martini",
         "stats": [
           {
@@ -7604,7 +7638,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Pat",
         "stats": [
           {
@@ -7626,7 +7660,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Possum",
         "stats": [
           {
@@ -7648,7 +7682,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "R2router",
         "stats": [
           {
@@ -7670,7 +7704,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -7692,7 +7726,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Tango",
         "stats": [
           {
@@ -7714,7 +7748,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -7736,7 +7770,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -7758,7 +7792,7 @@
         ]
       },
       {
-        "name": "GPlusAll",
+        "yAxis": "GPlusAll",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -7780,7 +7814,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Gin",
         "stats": [
           {
@@ -7800,7 +7834,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Ace",
         "stats": [
           {
@@ -7820,7 +7854,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Aero",
         "stats": [
           {
@@ -7840,7 +7874,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Bear",
         "stats": [
           {
@@ -7862,7 +7896,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Beego",
         "stats": [
           {
@@ -7884,7 +7918,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Bone",
         "stats": [
           {
@@ -7906,7 +7940,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Chi",
         "stats": [
           {
@@ -7928,7 +7962,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Denco",
         "stats": [
           {
@@ -7948,7 +7982,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Echo",
         "stats": [
           {
@@ -7968,7 +8002,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -7990,7 +8024,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Goji",
         "stats": [
           {
@@ -8010,7 +8044,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -8032,7 +8066,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -8054,7 +8088,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -8076,7 +8110,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -8098,7 +8132,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -8118,7 +8152,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -8138,7 +8172,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -8158,7 +8192,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -8178,7 +8212,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "LARS",
         "stats": [
           {
@@ -8198,7 +8232,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -8220,7 +8254,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Martini",
         "stats": [
           {
@@ -8242,7 +8276,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Pat",
         "stats": [
           {
@@ -8264,7 +8298,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Possum",
         "stats": [
           {
@@ -8286,7 +8320,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "R2router",
         "stats": [
           {
@@ -8308,7 +8342,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -8328,7 +8362,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Tango",
         "stats": [
           {
@@ -8350,7 +8384,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -8372,7 +8406,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -8394,7 +8428,7 @@
         ]
       },
       {
-        "name": "ParseStatic",
+        "yAxis": "ParseStatic",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -8416,7 +8450,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Ace",
         "stats": [
           {
@@ -8436,7 +8470,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Aero",
         "stats": [
           {
@@ -8456,7 +8490,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Bear",
         "stats": [
           {
@@ -8478,7 +8512,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Beego",
         "stats": [
           {
@@ -8500,7 +8534,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Bone",
         "stats": [
           {
@@ -8522,7 +8556,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Chi",
         "stats": [
           {
@@ -8544,7 +8578,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Denco",
         "stats": [
           {
@@ -8566,7 +8600,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Echo",
         "stats": [
           {
@@ -8586,7 +8620,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Gin",
         "stats": [
           {
@@ -8606,7 +8640,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -8628,7 +8662,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Goji",
         "stats": [
           {
@@ -8650,7 +8684,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -8672,7 +8706,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -8694,7 +8728,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -8716,7 +8750,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -8738,7 +8772,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -8760,7 +8794,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -8780,7 +8814,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -8802,7 +8836,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -8824,7 +8858,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "LARS",
         "stats": [
           {
@@ -8844,7 +8878,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -8866,7 +8900,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Martini",
         "stats": [
           {
@@ -8888,7 +8922,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Pat",
         "stats": [
           {
@@ -8910,7 +8944,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Possum",
         "stats": [
           {
@@ -8932,7 +8966,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "R2router",
         "stats": [
           {
@@ -8954,7 +8988,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -8976,7 +9010,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Tango",
         "stats": [
           {
@@ -8998,7 +9032,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -9020,7 +9054,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -9042,7 +9076,7 @@
         ]
       },
       {
-        "name": "ParseParam",
+        "yAxis": "ParseParam",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -9064,7 +9098,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Ace",
         "stats": [
           {
@@ -9084,7 +9118,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Aero",
         "stats": [
           {
@@ -9104,7 +9138,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Bear",
         "stats": [
           {
@@ -9126,7 +9160,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Beego",
         "stats": [
           {
@@ -9148,7 +9182,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Bone",
         "stats": [
           {
@@ -9170,7 +9204,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Chi",
         "stats": [
           {
@@ -9192,7 +9226,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Denco",
         "stats": [
           {
@@ -9214,7 +9248,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Echo",
         "stats": [
           {
@@ -9234,7 +9268,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Gin",
         "stats": [
           {
@@ -9254,7 +9288,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -9276,7 +9310,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Goji",
         "stats": [
           {
@@ -9298,7 +9332,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -9320,7 +9354,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -9342,7 +9376,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -9364,7 +9398,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -9386,7 +9420,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -9408,7 +9442,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -9428,7 +9462,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -9450,7 +9484,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -9472,7 +9506,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "LARS",
         "stats": [
           {
@@ -9492,7 +9526,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -9514,7 +9548,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Martini",
         "stats": [
           {
@@ -9536,7 +9570,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Pat",
         "stats": [
           {
@@ -9558,7 +9592,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Possum",
         "stats": [
           {
@@ -9580,7 +9614,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "R2router",
         "stats": [
           {
@@ -9602,7 +9636,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -9624,7 +9658,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Tango",
         "stats": [
           {
@@ -9646,7 +9680,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -9668,7 +9702,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -9690,7 +9724,7 @@
         ]
       },
       {
-        "name": "Parse2Params",
+        "yAxis": "Parse2Params",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -9712,7 +9746,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Ace",
         "stats": [
           {
@@ -9732,7 +9766,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Aero",
         "stats": [
           {
@@ -9752,7 +9786,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Bear",
         "stats": [
           {
@@ -9774,7 +9808,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Beego",
         "stats": [
           {
@@ -9796,7 +9830,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Bone",
         "stats": [
           {
@@ -9818,7 +9852,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Chi",
         "stats": [
           {
@@ -9840,7 +9874,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Denco",
         "stats": [
           {
@@ -9862,7 +9896,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Echo",
         "stats": [
           {
@@ -9882,7 +9916,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Gin",
         "stats": [
           {
@@ -9902,7 +9936,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "GocraftWeb",
         "stats": [
           {
@@ -9924,7 +9958,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Goji",
         "stats": [
           {
@@ -9946,7 +9980,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Gojiv2",
         "stats": [
           {
@@ -9968,7 +10002,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "GoJsonRest",
         "stats": [
           {
@@ -9990,7 +10024,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "GoRestful",
         "stats": [
           {
@@ -10012,7 +10046,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "GorillaMux",
         "stats": [
           {
@@ -10034,7 +10068,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "GowwwRouter",
         "stats": [
           {
@@ -10056,7 +10090,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "HttpRouter",
         "stats": [
           {
@@ -10076,7 +10110,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "HttpTreeMux",
         "stats": [
           {
@@ -10098,7 +10132,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Kocha",
         "stats": [
           {
@@ -10120,7 +10154,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "LARS",
         "stats": [
           {
@@ -10140,7 +10174,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Macaron",
         "stats": [
           {
@@ -10162,7 +10196,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Martini",
         "stats": [
           {
@@ -10184,7 +10218,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Pat",
         "stats": [
           {
@@ -10206,7 +10240,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Possum",
         "stats": [
           {
@@ -10228,7 +10262,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "R2router",
         "stats": [
           {
@@ -10250,7 +10284,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Rivet",
         "stats": [
           {
@@ -10272,7 +10306,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Tango",
         "stats": [
           {
@@ -10294,7 +10328,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "TigerTonic",
         "stats": [
           {
@@ -10316,7 +10350,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Traffic",
         "stats": [
           {
@@ -10338,7 +10372,7 @@
         ]
       },
       {
-        "name": "ParseAll",
+        "yAxis": "ParseAll",
         "xAxis": "Vulcan",
         "stats": [
           {
@@ -10364,38 +10398,65 @@
     "history": [
       {
         "tag": "v1.0.0",
-        "timestamp": "2025-06-01T08:00:00Z"
+        "timestamp": "2025-06-01T08:00:00Z",
+        "meta": {
+          "cpu": {
+            "name": "Intel Core i7-9700K",
+            "cores": 8
+          },
+          "os": "linux"
+        }
       },
       {
         "tag": "v1.1.0",
-        "timestamp": "2025-08-20T14:15:00Z"
+        "timestamp": "2025-08-20T14:15:00Z",
+        "meta": {
+          "cpu": {
+            "name": "Intel Core i7-9700K",
+            "cores": 8
+          },
+          "os": "linux"
+        }
       },
       {
         "tag": "v1.2.0",
         "timestamp": "2025-11-15T10:30:00Z"
       }
-    ]
+    ],
+    "meta": {
+      "pkg": "github.com/gin-gonic/go-http-routing-benchmark"
+    }
   },
   {
     "name": "Worker Pool Benchmarks",
     "description": "Performance comparison of different worker pool implementations",
-    "cpu": {
-      "name": "Intel Core i9-13900K @ 5.8GHz",
-      "cores": 8
-    },
-    "os": "linux",
-    "arch": "amd64",
-    "pkg": "github.com/alitto/pond-benchmarks",
-    "settings": {
-      "sort": {
-        "enabled": false,
-        "order": "asc"
+    "settings": [
+      {
+        "type": "bar",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false
       },
-      "showLabels": false
-    },
+      {
+        "type": "line"
+      },
+      {
+        "type": "pie",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": true
+      },
+      {
+        "type": "radar"
+      }
+    ],
     "data": [
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Eager",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10414,7 +10475,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Balanced",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10433,7 +10494,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Lazy",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10452,7 +10513,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Goroutines",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10471,7 +10532,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "GoroutinePool",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10490,7 +10551,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "BufferedPool",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10509,7 +10570,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Gammazero",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10528,7 +10589,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "AntsPool",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -10547,7 +10608,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Eager",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10566,7 +10627,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Balanced",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10585,7 +10646,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Lazy",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10604,7 +10665,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Goroutines",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10623,7 +10684,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "GoroutinePool",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10642,7 +10703,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "BufferedPool",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10661,7 +10722,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Gammazero",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10680,7 +10741,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "AntsPool",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -10699,7 +10760,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Eager",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10718,7 +10779,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Balanced",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10737,7 +10798,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Lazy",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10756,7 +10817,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Goroutines",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10775,7 +10836,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "GoroutinePool",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10794,7 +10855,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "BufferedPool",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10813,7 +10874,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Gammazero",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10832,7 +10893,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "AntsPool",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -10851,7 +10912,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Eager",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -10870,7 +10931,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Balanced",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -10889,7 +10950,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Lazy",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -10908,7 +10969,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Goroutines",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -10927,7 +10988,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "GoroutinePool",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -10946,7 +11007,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "BufferedPool",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -10965,7 +11026,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Gammazero",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -10984,7 +11045,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "AntsPool",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11003,7 +11064,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Eager",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11022,7 +11083,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Balanced",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11041,7 +11102,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Pond-Lazy",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11060,7 +11121,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Goroutines",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11079,7 +11140,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "GoroutinePool",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11098,7 +11159,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "BufferedPool",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11117,7 +11178,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "Gammazero",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11136,7 +11197,7 @@
         ]
       },
       {
-        "name": "AllSleep10ms",
+        "zAxis": "AllSleep10ms",
         "xAxis": "AntsPool",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11155,7 +11216,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Eager",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11174,7 +11235,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Balanced",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11193,7 +11254,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Lazy",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11212,7 +11273,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Goroutines",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11231,7 +11292,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "GoroutinePool",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11250,7 +11311,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "BufferedPool",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11269,7 +11330,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Gammazero",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11288,7 +11349,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "AntsPool",
         "yAxis": "1u-1Mt",
         "stats": [
@@ -11307,7 +11368,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Eager",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11326,7 +11387,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Balanced",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11345,7 +11406,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Lazy",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11364,7 +11425,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Goroutines",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11383,7 +11444,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "GoroutinePool",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11402,7 +11463,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "BufferedPool",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11421,7 +11482,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Gammazero",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11440,7 +11501,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "AntsPool",
         "yAxis": "100u-10Kt",
         "stats": [
@@ -11459,7 +11520,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Eager",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11478,7 +11539,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Balanced",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11497,7 +11558,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Lazy",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11516,7 +11577,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Goroutines",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11535,7 +11596,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "GoroutinePool",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11554,7 +11615,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "BufferedPool",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11573,7 +11634,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Gammazero",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11592,7 +11653,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "AntsPool",
         "yAxis": "1Ku-1Kt",
         "stats": [
@@ -11611,7 +11672,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Eager",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11630,7 +11691,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Balanced",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11649,7 +11710,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Lazy",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11668,7 +11729,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Goroutines",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11687,7 +11748,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "GoroutinePool",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11706,7 +11767,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "BufferedPool",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11725,7 +11786,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Gammazero",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11744,7 +11805,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "AntsPool",
         "yAxis": "10Ku-100t",
         "stats": [
@@ -11763,7 +11824,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Eager",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11782,7 +11843,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Balanced",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11801,7 +11862,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Pond-Lazy",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11820,7 +11881,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Goroutines",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11839,7 +11900,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "GoroutinePool",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11858,7 +11919,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "BufferedPool",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11877,7 +11938,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "Gammazero",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11896,7 +11957,7 @@
         ]
       },
       {
-        "name": "AllRandFloat64",
+        "zAxis": "AllRandFloat64",
         "xAxis": "AntsPool",
         "yAxis": "1Mu-1t",
         "stats": [
@@ -11920,36 +11981,63 @@
     "history": [
       {
         "tag": "v1.0.0",
-        "timestamp": "2025-09-10T12:00:00Z"
+        "timestamp": "2025-09-10T12:00:00Z",
+        "meta": {
+          "cpu": {
+            "name": "AMD Ryzen 9 5950X",
+            "cores": 16
+          },
+          "os": "linux"
+        }
       },
       {
         "tag": "v2.0.0",
-        "timestamp": "2026-01-10T16:45:00Z"
+        "timestamp": "2026-01-10T16:45:00Z",
+        "meta": {
+          "cpu": {
+            "name": "Intel Core i9-13900K @ 5.8GHz",
+            "cores": 8
+          },
+          "os": "linux"
+        }
       }
-    ]
+    ],
+    "meta": {
+      "cpu": {
+        "name": "Intel Core i9-13900K @ 5.8GHz",
+        "cores": 8
+      },
+      "os": "linux",
+      "arch": "amd64",
+      "pkg": "github.com/alitto/pond-benchmarks"
+    }
   },
   {
     "name": "Serialization",
     "description": "Comparison of different serialization methods",
-    "cpu": {
-      "cores": 128
-    },
-    "pkg": "github.com/smallnest/gosercomp",
-    "settings": {
-      "charts": [
-        "bar",
-        "pie"
-      ],
-      "sort": {
-        "enabled": true,
-        "order": "asc"
+    "settings": [
+      {
+        "type": "bar",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false,
+        "scale": "log"
       },
-      "showLabels": false
-    },
+      {
+        "type": "pie",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false
+      }
+    ],
     "data": [
       {
-        "xAxis": "Marshal",
-        "yAxis": "Json",
+        "yAxis": "Marshal",
+        "xAxis": "Json",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -11974,8 +12062,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Xml",
+        "yAxis": "Marshal",
+        "xAxis": "Xml",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12000,8 +12088,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Msgp",
+        "yAxis": "Marshal",
+        "xAxis": "Msgp",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12026,8 +12114,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "ProtoBuf",
+        "yAxis": "Marshal",
+        "xAxis": "ProtoBuf",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12052,8 +12140,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "GogoProtoBuf",
+        "yAxis": "Marshal",
+        "xAxis": "GogoProtoBuf",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12078,8 +12166,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Thrift",
+        "yAxis": "Marshal",
+        "xAxis": "Thrift",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12104,8 +12192,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "ThriftIterator",
+        "yAxis": "Marshal",
+        "xAxis": "ThriftIterator",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12130,8 +12218,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "ThriftIteratorDynamic",
+        "yAxis": "Marshal",
+        "xAxis": "ThriftIteratorDynamic",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12156,8 +12244,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "ThriftIteratorEncoder",
+        "yAxis": "Marshal",
+        "xAxis": "ThriftIteratorEncoder",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12181,8 +12269,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Avro",
+        "yAxis": "Marshal",
+        "xAxis": "Avro",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12207,8 +12295,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Gencode",
+        "yAxis": "Marshal",
+        "xAxis": "Gencode",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12231,8 +12319,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "UgorjiCodecAndCbor",
+        "yAxis": "Marshal",
+        "xAxis": "UgorjiCodecAndCbor",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12257,8 +12345,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "UgorjiCodecAndMsgp",
+        "yAxis": "Marshal",
+        "xAxis": "UgorjiCodecAndMsgp",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12283,8 +12371,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "UgorjiCodecAndBinc",
+        "yAxis": "Marshal",
+        "xAxis": "UgorjiCodecAndBinc",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12309,8 +12397,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "UgorjiCodecAndJson",
+        "yAxis": "Marshal",
+        "xAxis": "UgorjiCodecAndJson",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12335,8 +12423,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Easyjson",
+        "yAxis": "Marshal",
+        "xAxis": "Easyjson",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12361,8 +12449,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Ffjson",
+        "yAxis": "Marshal",
+        "xAxis": "Ffjson",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12387,8 +12475,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Jsoniter",
+        "yAxis": "Marshal",
+        "xAxis": "Jsoniter",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12413,8 +12501,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Sonic",
+        "yAxis": "Marshal",
+        "xAxis": "Sonic",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12439,8 +12527,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Gojay",
+        "yAxis": "Marshal",
+        "xAxis": "Gojay",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12465,8 +12553,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "GoMemdump",
+        "yAxis": "Marshal",
+        "xAxis": "GoMemdump",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12491,8 +12579,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Colfer",
+        "yAxis": "Marshal",
+        "xAxis": "Colfer",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12515,8 +12603,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Zebrapack",
+        "yAxis": "Marshal",
+        "xAxis": "Zebrapack",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12540,8 +12628,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Hprose",
+        "yAxis": "Marshal",
+        "xAxis": "Hprose",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12566,8 +12654,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Sereal",
+        "yAxis": "Marshal",
+        "xAxis": "Sereal",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12592,8 +12680,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "VmihMsgpackv4",
+        "yAxis": "Marshal",
+        "xAxis": "VmihMsgpackv4",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12618,8 +12706,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "Rlp",
+        "yAxis": "Marshal",
+        "xAxis": "Rlp",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12644,8 +12732,8 @@
         ]
       },
       {
-        "xAxis": "Marshal",
-        "yAxis": "SegmentioJSON",
+        "yAxis": "Marshal",
+        "xAxis": "SegmentioJSON",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12670,8 +12758,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Json",
+        "yAxis": "Unmarshal",
+        "xAxis": "Json",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12692,8 +12780,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Xml",
+        "yAxis": "Unmarshal",
+        "xAxis": "Xml",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12714,8 +12802,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Msgp",
+        "yAxis": "Unmarshal",
+        "xAxis": "Msgp",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12736,8 +12824,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "ProtoBuf",
+        "yAxis": "Unmarshal",
+        "xAxis": "ProtoBuf",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12758,8 +12846,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "GogoProtoBuf",
+        "yAxis": "Unmarshal",
+        "xAxis": "GogoProtoBuf",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12780,8 +12868,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Thrift",
+        "yAxis": "Unmarshal",
+        "xAxis": "Thrift",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12802,8 +12890,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "ThriftIterator",
+        "yAxis": "Unmarshal",
+        "xAxis": "ThriftIterator",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12824,8 +12912,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "ThriftIteratorDynamic",
+        "yAxis": "Unmarshal",
+        "xAxis": "ThriftIteratorDynamic",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12846,8 +12934,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "ThriftIteratorDecoder",
+        "yAxis": "Unmarshal",
+        "xAxis": "ThriftIteratorDecoder",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12868,8 +12956,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Avro",
+        "yAxis": "Unmarshal",
+        "xAxis": "Avro",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12890,8 +12978,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Gencode",
+        "yAxis": "Unmarshal",
+        "xAxis": "Gencode",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12912,8 +13000,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "UgorjiCodecAndCbor",
+        "yAxis": "Unmarshal",
+        "xAxis": "UgorjiCodecAndCbor",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12934,8 +13022,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "UgorjiCodecAndMsgp",
+        "yAxis": "Unmarshal",
+        "xAxis": "UgorjiCodecAndMsgp",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12956,8 +13044,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "UgorjiCodecAndBinc",
+        "yAxis": "Unmarshal",
+        "xAxis": "UgorjiCodecAndBinc",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -12978,8 +13066,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "UgorjiCodecAndJson",
+        "yAxis": "Unmarshal",
+        "xAxis": "UgorjiCodecAndJson",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13000,8 +13088,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Easyjson",
+        "yAxis": "Unmarshal",
+        "xAxis": "Easyjson",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13022,8 +13110,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Ffjson",
+        "yAxis": "Unmarshal",
+        "xAxis": "Ffjson",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13044,8 +13132,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Jsoniter",
+        "yAxis": "Unmarshal",
+        "xAxis": "Jsoniter",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13066,8 +13154,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Sonic",
+        "yAxis": "Unmarshal",
+        "xAxis": "Sonic",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13088,8 +13176,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Gojay",
+        "yAxis": "Unmarshal",
+        "xAxis": "Gojay",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13110,8 +13198,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "GoMemdump",
+        "yAxis": "Unmarshal",
+        "xAxis": "GoMemdump",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13132,8 +13220,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Colfer",
+        "yAxis": "Unmarshal",
+        "xAxis": "Colfer",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13154,8 +13242,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Zebrapack",
+        "yAxis": "Unmarshal",
+        "xAxis": "Zebrapack",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13176,8 +13264,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Hprose",
+        "yAxis": "Unmarshal",
+        "xAxis": "Hprose",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13198,8 +13286,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Sereal",
+        "yAxis": "Unmarshal",
+        "xAxis": "Sereal",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13220,8 +13308,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "VmihMsgpackv4",
+        "yAxis": "Unmarshal",
+        "xAxis": "VmihMsgpackv4",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13242,8 +13330,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "Rlp",
+        "yAxis": "Unmarshal",
+        "xAxis": "Rlp",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13264,8 +13352,8 @@
         ]
       },
       {
-        "xAxis": "Unmarshal",
-        "yAxis": "SegmentioJSON",
+        "yAxis": "Unmarshal",
+        "xAxis": "SegmentioJSON",
         "stats": [
           {
             "type": "Execution Time (ns/op)",
@@ -13291,39 +13379,61 @@
     "history": [
       {
         "tag": "v0.1.0",
-        "timestamp": "2025-10-01T07:30:00Z"
+        "timestamp": "2025-10-01T07:30:00Z",
+        "meta": {
+          "cpu": {
+            "name": 64
+          }
+        }
       },
       {
         "tag": "v0.2.0",
-        "timestamp": "2025-11-01T11:00:00Z"
+        "timestamp": "2025-11-01T11:00:00Z",
+        "meta": {
+          "cpu": {
+            "name": 96
+          }
+        }
       },
       {
         "tag": "v0.3.0",
-        "timestamp": "2025-12-05T09:20:00Z"
+        "timestamp": "2025-12-05T09:20:00Z",
+        "meta": {
+          "cpu": {
+            "name": 128
+          }
+        }
       }
-    ]
+    ],
+    "meta": {
+      "cpu": {
+        "name": 128
+      },
+      "pkg": "github.com/smallnest/gosercomp"
+    }
   },
   {
     "name": "VarMQ",
-    "description": "Variadic Queue Benchmark",
-    "cpu": {
-      "name": "13th Gen Intel(R) Core(TM) i7-13700",
-      "cores": 24
-    },
-    "os": "linux",
-    "arch": "amd64",
-    "pkg": "github.com/goptics/varmq",
-    "settings": {
-      "charts": [
-        "bar",
-        "pie"
-      ],
-      "sort": {
-        "enabled": true,
-        "order": "asc"
+    "description": "Variadic Queue DataSet",
+    "settings": [
+      {
+        "type": "bar",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false,
+        "scale": "linear"
       },
-      "showLabels": false
-    },
+      {
+        "type": "pie",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false
+      }
+    ],
     "data": [
       {
         "name": "Add",
@@ -13589,23 +13699,48 @@
           }
         ]
       }
-    ]
+    ],
+    "meta": {
+      "cpu": {
+        "name": "13th Gen Intel(R) Core(TM) i7-13700",
+        "cores": 24
+      },
+      "os": "linux",
+      "arch": "amd64",
+      "pkg": "github.com/goptics/varmq"
+    }
   },
   {
     "name": "Hashing",
     "description": "Comparison of different hash functions",
-    "settings": {
-      "charts": [
-        "bar",
-        "line",
-        "pie"
-      ],
-      "sort": {
-        "enabled": true,
-        "order": "asc"
+    "settings": [
+      {
+        "type": "bar",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false,
+        "scale": "linear"
       },
-      "showLabels": false
-    },
+      {
+        "type": "line",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false,
+        "scale": "linear"
+      },
+      {
+        "type": "pie",
+        "sort": {
+          "enabled": true,
+          "order": "asc"
+        },
+        "showLabels": false
+      }
+    ],
     "data": [
       {
         "xAxis": "MD5",
@@ -13831,941 +13966,202 @@
     ]
   },
   {
-    "name": "Logarithmic benchmarks",
-    "cpu": {
-      "name": "Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz",
-      "cores": 6
-    },
-    "os": "linux",
-    "arch": "amd64",
-    "pkg": "cmpfr",
-    "settings": {
-      "charts": [
-        "bar",
-        "line",
-        "pie"
-      ],
-      "sort": {
-        "enabled": true,
-        "order": "asc"
+    "name": "Compression Delta Benchmarks",
+    "description": "Throughput delta vs baseline (negative = regression, positive = improvement)",
+    "settings": [
+      {
+        "type": "bar",
+        "sort": {
+          "enabled": false,
+          "order": "asc"
+        },
+        "showLabels": true,
+        "scale": "linear"
       },
-      "showLabels": false,
-      "scale": "log"
-    },
+      {
+        "type": "line",
+        "sort": {
+          "enabled": false,
+          "order": "asc"
+        },
+        "showLabels": true,
+        "scale": "linear"
+      },
+      {
+        "type": "pie",
+        "sort": {
+          "enabled": false,
+          "order": "asc"
+        },
+        "showLabels": true
+      }
+    ],
     "data": [
       {
-        "xAxis": "SmallIntegers",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "LZ4",
+        "yAxis": "1KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 999.2
+            "type": "Throughput Delta (MB/s)",
+            "value": 142.5
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 248
-          },
-          {
-            "type": "Allocations/op",
-            "value": 9
-          },
-          {
-            "type": "Iterations",
-            "value": 5456551
+            "type": "Latency Delta (µs)",
+            "value": -0.8
           }
         ]
       },
       {
-        "xAxis": "LargeIntegers",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "LZ4",
+        "yAxis": "64KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 1352
+            "type": "Throughput Delta (MB/s)",
+            "value": 310.2
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 408
-          },
-          {
-            "type": "Allocations/op",
-            "value": 10
-          },
-          {
-            "type": "Iterations",
-            "value": 3774207
+            "type": "Latency Delta (µs)",
+            "value": -4.1
           }
         ]
       },
       {
-        "xAxis": "SimpleFraction",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "LZ4",
+        "yAxis": "1MB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 1321
+            "type": "Throughput Delta (MB/s)",
+            "value": -22.7
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 352
-          },
-          {
-            "type": "Allocations/op",
-            "value": 10
-          },
-          {
-            "type": "Iterations",
-            "value": 4361322
+            "type": "Latency Delta (µs)",
+            "value": 12.3
           }
         ]
       },
       {
-        "xAxis": "ComplexFraction",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Zstd",
+        "yAxis": "1KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 1380
+            "type": "Throughput Delta (MB/s)",
+            "value": -55.3
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 360
-          },
-          {
-            "type": "Allocations/op",
-            "value": 11
-          },
-          {
-            "type": "Iterations",
-            "value": 4945956
+            "type": "Latency Delta (µs)",
+            "value": 3.2
           }
         ]
       },
       {
-        "xAxis": "LargeFraction",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Zstd",
+        "yAxis": "64KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 1797
+            "type": "Throughput Delta (MB/s)",
+            "value": 88.1
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 376
-          },
-          {
-            "type": "Allocations/op",
-            "value": 11
-          },
-          {
-            "type": "Iterations",
-            "value": 3197026
+            "type": "Latency Delta (µs)",
+            "value": -6.5
           }
         ]
       },
       {
-        "xAxis": "VeryLargeNumerator",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Zstd",
+        "yAxis": "1MB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 1515
+            "type": "Throughput Delta (MB/s)",
+            "value": 201.4
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 496
-          },
-          {
-            "type": "Allocations/op",
-            "value": 11
-          },
-          {
-            "type": "Iterations",
-            "value": 4230940
+            "type": "Latency Delta (µs)",
+            "value": -18.9
           }
         ]
       },
       {
-        "xAxis": "VeryLargeDenominator",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Snappy",
+        "yAxis": "1KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 4379
+            "type": "Throughput Delta (MB/s)",
+            "value": 38.6
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 1016
-          },
-          {
-            "type": "Allocations/op",
-            "value": 13
-          },
-          {
-            "type": "Iterations",
-            "value": 1391353
+            "type": "Latency Delta (µs)",
+            "value": -1.4
           }
         ]
       },
       {
-        "xAxis": "NegativeSmall",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Snappy",
+        "yAxis": "64KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 1301
+            "type": "Throughput Delta (MB/s)",
+            "value": -103.8
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 248
-          },
-          {
-            "type": "Allocations/op",
-            "value": 9
-          },
-          {
-            "type": "Iterations",
-            "value": 4345306
+            "type": "Latency Delta (µs)",
+            "value": 8.7
           }
         ]
       },
       {
-        "xAxis": "NegativeLarge",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Snappy",
+        "yAxis": "1MB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 1409
+            "type": "Throughput Delta (MB/s)",
+            "value": -67.2
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 408
-          },
-          {
-            "type": "Allocations/op",
-            "value": 10
-          },
-          {
-            "type": "Iterations",
-            "value": 4798053
+            "type": "Latency Delta (µs)",
+            "value": 22.1
           }
         ]
       },
       {
-        "xAxis": "CloseToZero",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Gzip",
+        "yAxis": "1KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 2391
+            "type": "Throughput Delta (MB/s)",
+            "value": -189.4
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 408
-          },
-          {
-            "type": "Allocations/op",
-            "value": 11
-          },
-          {
-            "type": "Iterations",
-            "value": 3178645
+            "type": "Latency Delta (µs)",
+            "value": 45.6
           }
         ]
       },
       {
-        "xAxis": "DifferentSigns",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Gzip",
+        "yAxis": "64KB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 928.8
+            "type": "Throughput Delta (MB/s)",
+            "value": -241.7
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 248
-          },
-          {
-            "type": "Allocations/op",
-            "value": 9
-          },
-          {
-            "type": "Iterations",
-            "value": 5880873
+            "type": "Latency Delta (µs)",
+            "value": 67.3
           }
         ]
       },
       {
-        "xAxis": "BothZero",
-        "yAxis": "CmpFloatRat0",
+        "xAxis": "Gzip",
+        "yAxis": "1MB",
         "stats": [
           {
-            "type": "Execution Time (ns/op)",
-            "value": 270.9
+            "type": "Throughput Delta (MB/s)",
+            "value": -318.5
           },
           {
-            "type": "Memory Usage (B/op)",
-            "value": 72
-          },
-          {
-            "type": "Allocations/op",
-            "value": 2
-          },
-          {
-            "type": "Iterations",
-            "value": 19789045
-          }
-        ]
-      },
-      {
-        "xAxis": "HighPrecision",
-        "yAxis": "CmpFloatRat0",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 3018
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 928
-          },
-          {
-            "type": "Allocations/op",
-            "value": 11
-          },
-          {
-            "type": "Iterations",
-            "value": 1708896
-          }
-        ]
-      },
-      {
-        "xAxis": "RandomValues",
-        "yAxis": "CmpFloatRat0",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 1707999
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 248067
-          },
-          {
-            "type": "Allocations/op",
-            "value": 9000
-          },
-          {
-            "type": "Iterations",
-            "value": 3870
-          }
-        ]
-      },
-      {
-        "xAxis": "SmallIntegers",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 84.63
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 8
-          },
-          {
-            "type": "Allocations/op",
-            "value": 1
-          },
-          {
-            "type": "Iterations",
-            "value": 62907930
-          }
-        ]
-      },
-      {
-        "xAxis": "LargeIntegers",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 171.1
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 48
-          },
-          {
-            "type": "Allocations/op",
-            "value": 1
-          },
-          {
-            "type": "Iterations",
-            "value": 33243613
-          }
-        ]
-      },
-      {
-        "xAxis": "SimpleFraction",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 512.2
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 64
-          },
-          {
-            "type": "Allocations/op",
-            "value": 3
-          },
-          {
-            "type": "Iterations",
-            "value": 12206640
-          }
-        ]
-      },
-      {
-        "xAxis": "ComplexFraction",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 540.7
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 72
-          },
-          {
-            "type": "Allocations/op",
-            "value": 4
-          },
-          {
-            "type": "Iterations",
-            "value": 12092005
-          }
-        ]
-      },
-      {
-        "xAxis": "LargeFraction",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 637.1
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 88
-          },
-          {
-            "type": "Allocations/op",
-            "value": 4
-          },
-          {
-            "type": "Iterations",
-            "value": 10411040
-          }
-        ]
-      },
-      {
-        "xAxis": "VeryLargeNumerator",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 836.4
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 208
-          },
-          {
-            "type": "Allocations/op",
-            "value": 5
-          },
-          {
-            "type": "Iterations",
-            "value": 7143363
-          }
-        ]
-      },
-      {
-        "xAxis": "VeryLargeDenominator",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 1387
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 344
-          },
-          {
-            "type": "Allocations/op",
-            "value": 5
-          },
-          {
-            "type": "Iterations",
-            "value": 3883464
-          }
-        ]
-      },
-      {
-        "xAxis": "NegativeSmall",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 564.2
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 72
-          },
-          {
-            "type": "Allocations/op",
-            "value": 4
-          },
-          {
-            "type": "Iterations",
-            "value": 10532964
-          }
-        ]
-      },
-      {
-        "xAxis": "NegativeLarge",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 157.7
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 48
-          },
-          {
-            "type": "Allocations/op",
-            "value": 1
-          },
-          {
-            "type": "Iterations",
-            "value": 34627219
-          }
-        ]
-      },
-      {
-        "xAxis": "CloseToZero",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 659.3
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 88
-          },
-          {
-            "type": "Allocations/op",
-            "value": 4
-          },
-          {
-            "type": "Iterations",
-            "value": 8623437
-          }
-        ]
-      },
-      {
-        "xAxis": "DifferentSigns",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 81.51
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 8
-          },
-          {
-            "type": "Allocations/op",
-            "value": 1
-          },
-          {
-            "type": "Iterations",
-            "value": 98775561
-          }
-        ]
-      },
-      {
-        "xAxis": "BothZero",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 10.53
-          },
-          {
-            "type": "Memory Usage (B/op)"
-          },
-          {
-            "type": "Allocations/op"
-          },
-          {
-            "type": "Iterations",
-            "value": 570580450
-          }
-        ]
-      },
-      {
-        "xAxis": "HighPrecision",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 986.5
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 216
-          },
-          {
-            "type": "Allocations/op",
-            "value": 5
-          },
-          {
-            "type": "Iterations",
-            "value": 5828425
-          }
-        ]
-      },
-      {
-        "xAxis": "RandomValues",
-        "yAxis": "CmpFloatRat1",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 566609
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 71492
-          },
-          {
-            "type": "Allocations/op",
-            "value": 3964
-          },
-          {
-            "type": "Iterations",
-            "value": 9214
-          }
-        ]
-      },
-      {
-        "xAxis": "SmallIntegers",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 99.73
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 8
-          },
-          {
-            "type": "Allocations/op",
-            "value": 1
-          },
-          {
-            "type": "Iterations",
-            "value": 60722422
-          }
-        ]
-      },
-      {
-        "xAxis": "LargeIntegers",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 189.4
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 48
-          },
-          {
-            "type": "Allocations/op",
-            "value": 1
-          },
-          {
-            "type": "Iterations",
-            "value": 34208551
-          }
-        ]
-      },
-      {
-        "xAxis": "SimpleFraction",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 577.7
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 64
-          },
-          {
-            "type": "Allocations/op",
-            "value": 3
-          },
-          {
-            "type": "Iterations",
-            "value": 10308673
-          }
-        ]
-      },
-      {
-        "xAxis": "ComplexFraction",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 624.5
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 72
-          },
-          {
-            "type": "Allocations/op",
-            "value": 4
-          },
-          {
-            "type": "Iterations",
-            "value": 9420973
-          }
-        ]
-      },
-      {
-        "xAxis": "LargeFraction",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 664.5
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 88
-          },
-          {
-            "type": "Allocations/op",
-            "value": 4
-          },
-          {
-            "type": "Iterations",
-            "value": 9549158
-          }
-        ]
-      },
-      {
-        "xAxis": "VeryLargeNumerator",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 813.9
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 208
-          },
-          {
-            "type": "Allocations/op",
-            "value": 5
-          },
-          {
-            "type": "Iterations",
-            "value": 7537648
-          }
-        ]
-      },
-      {
-        "xAxis": "VeryLargeDenominator",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 1141
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 344
-          },
-          {
-            "type": "Allocations/op",
-            "value": 5
-          },
-          {
-            "type": "Iterations",
-            "value": 5180502
-          }
-        ]
-      },
-      {
-        "xAxis": "NegativeSmall",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 560.7
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 72
-          },
-          {
-            "type": "Allocations/op",
-            "value": 4
-          },
-          {
-            "type": "Iterations",
-            "value": 11936049
-          }
-        ]
-      },
-      {
-        "xAxis": "NegativeLarge",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 200
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 48
-          },
-          {
-            "type": "Allocations/op",
-            "value": 1
-          },
-          {
-            "type": "Iterations",
-            "value": 34200104
-          }
-        ]
-      },
-      {
-        "xAxis": "CloseToZero",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 9.62
-          },
-          {
-            "type": "Memory Usage (B/op)"
-          },
-          {
-            "type": "Allocations/op"
-          },
-          {
-            "type": "Iterations",
-            "value": 528448011
-          }
-        ]
-      },
-      {
-        "xAxis": "DifferentSigns",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 3.14
-          },
-          {
-            "type": "Memory Usage (B/op)"
-          },
-          {
-            "type": "Allocations/op"
-          },
-          {
-            "type": "Iterations",
-            "value": 1000000000
-          }
-        ]
-      },
-      {
-        "xAxis": "BothZero",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 2.79
-          },
-          {
-            "type": "Memory Usage (B/op)"
-          },
-          {
-            "type": "Allocations/op"
-          },
-          {
-            "type": "Iterations",
-            "value": 1000000000
-          }
-        ]
-      },
-      {
-        "xAxis": "HighPrecision",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 821
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 216
-          },
-          {
-            "type": "Allocations/op",
-            "value": 5
-          },
-          {
-            "type": "Iterations",
-            "value": 6116125
-          }
-        ]
-      },
-      {
-        "xAxis": "RandomValues",
-        "yAxis": "CmpFloatRat2",
-        "stats": [
-          {
-            "type": "Execution Time (ns/op)",
-            "value": 640530
-          },
-          {
-            "type": "Memory Usage (B/op)",
-            "value": 71491
-          },
-          {
-            "type": "Allocations/op",
-            "value": 3964
-          },
-          {
-            "type": "Iterations",
-            "value": 8496
+            "type": "Latency Delta (µs)",
+            "value": 91.2
           }
         ]
       }

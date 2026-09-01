@@ -1,12 +1,14 @@
 package javascript
 
 import (
-	"os"
-	"path/filepath"
+	"errors"
+	"io"
+	"strings"
 	"testing"
 
+	"github.com/goptics/vizb/pkg/parser"
 	"github.com/goptics/vizb/shared"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
 var testVitestTable = ` ✓ sort.bench.js > n=100 1356ms
@@ -25,91 +27,141 @@ var testVitestTable = ` ✓ sort.bench.js > n=100 1356ms
    · insertionSort  1,933.38  0.5139  0.5336  0.5172  0.5181  0.5278  0.5288  0.5336  ±0.05%      967
 `
 
-func writeVitestTestFile(t *testing.T, content string) string {
+// javascriptTestInput returns a fresh reader shared by the JavaScript suites.
+func javascriptTestInput(t *testing.T, content string) io.Reader {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), "bench.txt")
-	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
-		t.Fatal(err)
-	}
-	return path
+	return strings.NewReader(content)
 }
 
+type javascriptErrorReader struct{}
+
+func (javascriptErrorReader) Read([]byte) (int, error) {
+	return 0, errors.New("injected read failure")
+}
+
+// assertStat asserts a stat's type, value, and symbol. Shared by the js suites.
 func assertStat(t *testing.T, s shared.Stat, expectedType string, expectedValue float64, expectedSymbol string) {
 	t.Helper()
-	assert.Equal(t, expectedType, s.Type, "stat type mismatch")
-	assert.Equal(t, expectedValue, s.Value, "stat value mismatch")
-	assert.Equal(t, expectedSymbol, s.Symbol, "stat symbol mismatch")
+	if s.Type != expectedType {
+		t.Errorf("stat type mismatch: got %v want %v", s.Type, expectedType)
+	}
+	if s.Value == nil || *s.Value != expectedValue {
+		t.Errorf("stat value mismatch: got %v want %v", s.Value, expectedValue)
+	}
+	if s.Symbol != expectedSymbol {
+		t.Errorf("stat symbol mismatch: got %v want %v", s.Symbol, expectedSymbol)
+	}
 }
 
-func TestParseVitestBenchmark(t *testing.T) {
-	origPattern := shared.FlagState.GroupPattern
-	origFilter := shared.FlagState.FilterRegex
-	origTimeUnit := shared.FlagState.TimeUnit
-	defer func() {
-		shared.FlagState.GroupPattern = origPattern
-		shared.FlagState.FilterRegex = origFilter
-		shared.FlagState.TimeUnit = origTimeUnit
-	}()
+// VitestSuite exercises ParseVitestBenchmark with a per-test parser.Config.
+type VitestSuite struct {
+	suite.Suite
+	cfg parser.Config
+}
 
-	t.Run("Real vitest output from sort.bench.js", func(t *testing.T) {
-		shared.FlagState.GroupPattern = "y/n"
-		shared.FlagState.FilterRegex = ""
-		shared.FlagState.TimeUnit = "ms"
+func (s *VitestSuite) SetupTest() {
+	s.cfg = parser.Config{GroupPattern: "y/n", TimeUnit: "ms"}
+}
 
-		results := ParseVitestBenchmark(writeVitestTestFile(t, testVitestTable))
-		assert.Len(t, results, 6)
+func (s *VitestSuite) TestRealVitestOutput() {
+	results, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), testVitestTable), s.cfg)
+	s.Require().NoError(err)
+	s.Len(results, 6)
 
-		assertStat(t, results[0].Stats[0], "Throughput avg (ops/s)", 264413.96, "")
-		assertStat(t, results[0].Stats[1], "Latency min (ms)", 0.0037, "")
-		assertStat(t, results[0].Stats[2], "Latency max (ms)", 0.0974, "")
-		assertStat(t, results[0].Stats[3], "Latency avg (ms)", 0.0038, "")
-		assertStat(t, results[0].Stats[4], "Latency p75 (ms)", 0.0038, "")
-		assertStat(t, results[0].Stats[5], "Latency p99 (ms)", 0.0049, "")
-		assertStat(t, results[0].Stats[6], "Latency p995 (ms)", 0.006, "")
-		assertStat(t, results[0].Stats[7], "Latency p999 (ms)", 0.0076, "")
-		assertStat(t, results[0].Stats[8], "RME (%)", 0.09, "±")
-		assertStat(t, results[0].Stats[9], "Samples", 132207, "")
+	assertStat(s.T(), results[0].Stats[0], "Throughput avg (ops/s)", 264413.96, "")
+	assertStat(s.T(), results[0].Stats[1], "Latency min (ms)", 0.0037, "")
+	assertStat(s.T(), results[0].Stats[2], "Latency max (ms)", 0.0974, "")
+	assertStat(s.T(), results[0].Stats[3], "Latency avg (ms)", 0.0038, "")
+	assertStat(s.T(), results[0].Stats[4], "Latency p75 (ms)", 0.0038, "")
+	assertStat(s.T(), results[0].Stats[5], "Latency p99 (ms)", 0.0049, "")
+	assertStat(s.T(), results[0].Stats[6], "Latency p995 (ms)", 0.006, "")
+	assertStat(s.T(), results[0].Stats[7], "Latency p999 (ms)", 0.0076, "")
+	assertStat(s.T(), results[0].Stats[8], "RME (%)", 0.09, "±")
+	assertStat(s.T(), results[0].Stats[9], "Samples", 132207, "")
 
-		assert.Equal(t, "bubbleSort", results[0].Name)
-		assert.Equal(t, "n=100", results[0].YAxis)
+	s.Equal("bubbleSort", results[0].Name)
+	s.Equal("n=100", results[0].YAxis)
 
-		last := results[5]
-		assert.Equal(t, "insertionSort", last.Name)
-		assert.Equal(t, "n=2000", last.YAxis)
-		assertStat(t, last.Stats[0], "Throughput avg (ops/s)", 1933.38, "")
-		assertStat(t, last.Stats[9], "Samples", 967, "")
+	last := results[5]
+	s.Equal("insertionSort", last.Name)
+	s.Equal("n=2000", last.YAxis)
+	assertStat(s.T(), last.Stats[0], "Throughput avg (ops/s)", 1933.38, "")
+	assertStat(s.T(), last.Stats[9], "Samples", 967, "")
+}
+
+func (s *VitestSuite) TestUnitConversionToUs() {
+	s.cfg.TimeUnit = "us"
+
+	results, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), testVitestTable), s.cfg)
+	s.Require().NoError(err)
+	s.Len(results, 6)
+
+	assertStat(s.T(), results[0].Stats[3], "Latency avg (us)", 3.8, "")
+	assertStat(s.T(), results[0].Stats[5], "Latency p99 (us)", 4.9, "")
+}
+
+func (s *VitestSuite) TestFilterRegex() {
+	s.cfg.Filter = "bubbleSort"
+
+	results, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), testVitestTable), s.cfg)
+	s.Require().NoError(err)
+	s.Len(results, 3)
+	for _, r := range results {
+		s.Equal("bubbleSort", r.Name)
+	}
+}
+
+func (s *VitestSuite) TestEmptyFile() {
+	s.cfg.GroupPattern = "y"
+
+	results, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), ""), s.cfg)
+	s.Require().NoError(err)
+	s.Empty(results)
+}
+
+// Throughput, RME, and Samples are raw metrics (no unit convert); still honor cfg.Round.
+func (s *VitestSuite) TestRawMetricsRoundWhenEnabled() {
+	const line = ` ✓ sort.bench.js > n=100 1356ms
+     name                   hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · bubbleSort     264,413.967  0.00371  0.09741  0.00381  0.00381  0.00491  0.00601  0.00761  ±0.091%   132207.456
+`
+	full, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), line), s.cfg)
+	s.Require().NoError(err)
+	s.Require().Len(full, 1)
+	assertStat(s.T(), full[0].Stats[0], "Throughput avg (ops/s)", 264413.967, "")
+	assertStat(s.T(), full[0].Stats[8], "RME (%)", 0.091, "±")
+	assertStat(s.T(), full[0].Stats[9], "Samples", 132207.456, "")
+
+	s.cfg.Round = true
+	rounded, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), line), s.cfg)
+	s.Require().NoError(err)
+	s.Require().Len(rounded, 1)
+	assertStat(s.T(), rounded[0].Stats[0], "Throughput avg (ops/s)", 264413.97, "")
+	assertStat(s.T(), rounded[0].Stats[8], "RME (%)", 0.09, "±")
+	assertStat(s.T(), rounded[0].Stats[9], "Samples", 132207.46, "")
+}
+
+func (s *VitestSuite) TestReturnsErrors() {
+	s.Run("invalid filter", func() {
+		cfg := s.cfg
+		cfg.Filter = "["
+		_, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), testVitestTable), cfg)
+		s.ErrorContains(err, "invalid filter regex")
 	})
 
-	t.Run("Unit conversion to us", func(t *testing.T) {
-		shared.FlagState.GroupPattern = "y/n"
-		shared.FlagState.FilterRegex = ""
-		shared.FlagState.TimeUnit = "us"
-
-		results := ParseVitestBenchmark(writeVitestTestFile(t, testVitestTable))
-		assert.Len(t, results, 6)
-
-		assertStat(t, results[0].Stats[3], "Latency avg (us)", 3.8, "")
-		assertStat(t, results[0].Stats[5], "Latency p99 (us)", 4.9, "")
+	s.Run("invalid benchmark group pattern", func() {
+		cfg := s.cfg
+		cfg.GroupPattern = "[n/y]"
+		_, _, _, err := ParseVitestBenchmark(javascriptTestInput(s.T(), testVitestTable), cfg)
+		s.ErrorContains(err, "bracket slots")
 	})
 
-	t.Run("Filter regex", func(t *testing.T) {
-		shared.FlagState.GroupPattern = "y/n"
-		shared.FlagState.FilterRegex = "bubbleSort"
-		shared.FlagState.TimeUnit = "ms"
-
-		results := ParseVitestBenchmark(writeVitestTestFile(t, testVitestTable))
-		assert.Len(t, results, 3)
-		for _, r := range results {
-			assert.Equal(t, "bubbleSort", r.Name)
-		}
+	s.Run("reader failure", func() {
+		_, _, _, err := ParseVitestBenchmark(javascriptErrorReader{}, s.cfg)
+		s.ErrorContains(err, "read vitest benchmark")
 	})
+}
 
-	t.Run("Empty file", func(t *testing.T) {
-		shared.FlagState.GroupPattern = "y"
-		shared.FlagState.FilterRegex = ""
-		shared.FlagState.TimeUnit = "ms"
-
-		results := ParseVitestBenchmark(writeVitestTestFile(t, ""))
-		assert.Empty(t, results)
-	})
+func TestVitestSuite(t *testing.T) {
+	suite.Run(t, new(VitestSuite))
 }

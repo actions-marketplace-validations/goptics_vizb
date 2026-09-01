@@ -1,44 +1,83 @@
+// Package cmd wires the root cobra command and registers its subcommands.
 package cmd
 
 import (
-	"bufio"
-	"encoding/json"
-	"fmt"
-	"io"
 	"os"
-	"path/filepath"
+	"slices"
 	"strings"
-	"time"
 
-	"github.com/goptics/vizb/pkg/parser"
-	goparser "github.com/goptics/vizb/pkg/parser/golang"
+	"github.com/goptics/vizb/cmd/cli"
+	internal_charts "github.com/goptics/vizb/internal/charts"
+	"github.com/goptics/vizb/internal/flags"
+	"github.com/goptics/vizb/pkg/cliout"
+
+	// Chart configs self-register into the charts registry and cli metadata
+	// via init() in cmd/charts/<c>; blank-importing them makes the registry
+	// (and thus the subcommands and --chart key set) complete.
+	_ "github.com/goptics/vizb/cmd/charts/bar"
+	_ "github.com/goptics/vizb/cmd/charts/chord"
+	_ "github.com/goptics/vizb/cmd/charts/heatmap"
+	_ "github.com/goptics/vizb/cmd/charts/line"
+	_ "github.com/goptics/vizb/cmd/charts/pie"
+	_ "github.com/goptics/vizb/cmd/charts/radar"
+	_ "github.com/goptics/vizb/cmd/charts/sankey"
+	_ "github.com/goptics/vizb/cmd/charts/scatter"
+
+	// Parsers self-register into pkg/parser via their init().
+	_ "github.com/goptics/vizb/pkg/parser/csv"
+	_ "github.com/goptics/vizb/pkg/parser/golang"
 	_ "github.com/goptics/vizb/pkg/parser/javascript"
+	_ "github.com/goptics/vizb/pkg/parser/json"
 	_ "github.com/goptics/vizb/pkg/parser/rust"
-	"github.com/goptics/vizb/pkg/style"
-	"github.com/goptics/vizb/pkg/template"
 	"github.com/goptics/vizb/shared"
 	"github.com/goptics/vizb/shared/utils"
 	"github.com/goptics/vizb/version"
-	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
+)
+
+// defaultChartTypes and validChartTypes alias shared constants for the root
+// --charts flag: bar/line/pie by default, all registered chart types accepted
+// when explicit.
+var (
+	defaultChartTypes = shared.DefaultChartTypes
+	validChartTypes   = shared.ValidChartTypes
+)
+
+// rootFlags are the descriptors the root command binds: every data flag plus the
+// shared chart-seed flags (sort/labels/stat) that seed every selected chart.
+// Scale is per-chart only (bar/line); the root command has no global --scale.
+func rootFlags() []flags.Flag {
+	return append(slices.Clone(cli.DataFlags),
+		internal_charts.SortFlag, internal_charts.LabelsFlag, internal_charts.StatFlag)
+}
+
+// rootBag binds and validates the root flags; rootCharts/rootChartSpecs are the
+// root-only chart selection (--charts) and per-chart override specs (--chart).
+var (
+	rootBag        = cli.NewFlagBag(rootFlags())
+	rootCharts     []string
+	rootChartSpecs []string
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "vizb [target]",
-	Short: "Generate benchmark charts from Go test benchmarks",
-	Long: `A CLI tool that extends the functionality of 'go test -bench' with chart generation.
-It takes benchmark text or json file as input and generates an interactive HTML chart application.`,
+	Short: "Turn CSV, JSON, and benchmarks into interactive charts and stats",
+	Long: `Turn CSV, JSON, and benchmark output into interactive charts and stats
+without writing chart code. Reads a file or piped stdin, auto-detects the
+format (override with --parser), and writes one self-contained HTML report
+(or JSON). Default charts: bar, line, pie. Add scatter, heatmap, radar,
+sankey, or chord with --charts or a chart subcommand.`,
 	Version: version.Version,
 	Args:    cobra.ArbitraryArgs,
 	Run:     runBenchmark,
 }
 
 // Execute runs the main command-line interface for vizb.
-// It processes the command line arguments and executes the benchmark visualization workflow.
-// This function is the main entry point called from main.go and handles cleanup of temporary files.
 func Execute() {
 	defer shared.TempFiles.RemoveAll()
+	os.Args = cli.RewriteStatArg(os.Args)
+	os.Args = cli.RewriteObjectArg(os.Args)
 
 	if err := rootCmd.Execute(); err != nil {
 		shared.ExitWithError(err.Error(), nil)
@@ -46,263 +85,71 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&shared.FlagState.Name, "name", "n", "Benchmarks", "Name of the benchmark")
-	rootCmd.Flags().StringVarP(&shared.FlagState.Description, "description", "d", "", "Description of the benchmark")
-	rootCmd.PersistentFlags().StringVarP(&shared.FlagState.OutputFile, "output", "o", "", "Output file path/name")
-	rootCmd.Flags().StringVarP(&shared.FlagState.MemUnit, "mem-unit", "M", "B", "Memory unit available: b, B, KB, MB, GB")
-	rootCmd.Flags().StringVarP(&shared.FlagState.TimeUnit, "time-unit", "T", "ns", "Time unit available: ns, us, ms, s")
-	rootCmd.Flags().StringVarP(&shared.FlagState.NumberUnit, "number-unit", "N", "", "Number unit available: K, M, B, T (default: as-is)")
-	rootCmd.Flags().StringVarP(&shared.FlagState.GroupPattern, "group-pattern", "p", "x", "Pattern to extract grouping information from benchmark names")
-	rootCmd.Flags().StringVarP(&shared.FlagState.GroupRegex, "group-regex", "r", "", "Regex pattern to extract grouping information from benchmark names")
-	rootCmd.Flags().StringVarP(&shared.FlagState.Sort, "sort", "s", "", "Sort in asc or desc order (default: as-is)")
-	rootCmd.Flags().StringSliceVarP(&shared.FlagState.Charts, "charts", "c", []string{"bar", "line", "pie"}, "Chart types to generate (bar, line, pie)")
-	rootCmd.Flags().BoolVarP(&shared.FlagState.ShowLabels, "show-labels", "l", false, "Show labels on charts")
-	rootCmd.Flags().StringVarP(&shared.FlagState.FilterRegex, "filter", "f", "", "Regex pattern to include only matching benchmark names")
-	rootCmd.Flags().StringVarP(&shared.FlagState.Scale, "scale", "S", "linear", "Scale type (linear, log)")
-	rootCmd.Flags().StringVarP(&shared.FlagState.Tag, "tag", "t", "", "Tag/identifier for the benchmark")
-	rootCmd.Flags().StringVarP(&shared.FlagState.Parser, "parser", "P", "go", "Benchmark parser to use (one of: "+strings.Join(parser.AvailableParsers(), ", ")+")")
+	rootBag.Bind(rootCmd.Flags())
+	rootCmd.Flags().StringSliceVarP(&rootCharts, "charts", "c", defaultChartTypes, "Chart types to embed (bar, line, scatter, pie, heatmap, radar, sankey, chord)")
+	rootCmd.Flags().StringArrayVar(&rootChartSpecs, "chart", nil,
+		"Per-chart override (type:key=val; repeatable; see docs)")
 
-	// Add a hook to validate flags after parsing
-	cobra.OnInitialize(func() {
-		utils.ApplyValidationRules(flagValidationRules)
-	})
+	// Build the chart subcommands from the config/charts registry.
+	rootCmd.AddCommand(cli.ChartCommands()...)
 }
 
 func runBenchmark(cmd *cobra.Command, args []string) {
-	stat, _ := os.Stdin.Stat()
-	isStdinPiped := (stat.Mode() & os.ModeCharDevice) == 0
+	warnDeprecatedRootFlags(cmd)
+	validateRootOptions(cmd)
 
-	var target string
-
-	if len(args) > 0 {
-		target = args[0]
-		checkTargetFile(target)
-	} else if isStdinPiped {
-		target = shared.MustCreateTempFile(shared.TempBenchFilePrefix, "out")
-		shared.TempFiles.Store(target)
-
-		writeStdinPipedInputs(target)
-	} else {
-		cmd.Help()
-		shared.OsExit(0)
-	}
-
-	generateOutputFile(target)
-}
-
-func writeStdinPipedInputs(tempfilePath string) {
-	inputTempFile := shared.MustCreateFile(tempfilePath)
-	defer inputTempFile.Close()
-
-	// Use bufio to read stdin line by line in real-time
-	reader := bufio.NewReader(os.Stdin)
-	writer := bufio.NewWriter(inputTempFile)
-
-	// Create a progress bar manager
-	benchmarkProgressManager := NewBenchmarkProgressManager(
-		progressbar.NewOptions(-1,
-			progressbar.OptionSetDescription(style.Info.Render("Processing benchmarks")),
-			progressbar.OptionSetWidth(50),
-			progressbar.OptionSetRenderBlankState(true),
-			progressbar.OptionEnableColorCodes(true),
-			progressbar.OptionOnCompletion(func() { fmt.Println() }),
-		),
-	)
-
-	// Process each line as it comes in
-	for {
-		line, err := reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				// End of input
-				break
-			}
-			shared.ExitWithError("Error reading from stdin", err)
-		}
-
-		// Write the line to the file
-		if _, err := writer.WriteString(line); err != nil {
-			shared.ExitWithError("Error writing to file", err)
-		}
-
-		benchmarkProgressManager.ProcessLine(line)
-	}
-
-	benchmarkProgressManager.Finish()
-
-	writer.Flush()
-	inputTempFile.Sync()
-}
-
-func checkTargetFile(filePath string) {
-	fmt.Println(style.Info.Render(fmt.Sprintf("📊 Reading benchmark data from file: %s", filePath)))
-
-	// Check if the target file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		shared.ExitWithError(fmt.Sprintf("Error: File '%s' does not exist", filePath), nil)
-	}
-}
-
-func convertToBenchmark(filePath string) (benchmark *shared.Benchmark) {
-	f := shared.MustOpenFile(filePath)
-	defer f.Close()
-
-	content, err := io.ReadAll(f)
-	if err != nil {
-		shared.ExitWithError("Failed to read file: %v", err)
-	}
-
-	if err := json.Unmarshal(content, &benchmark); err != nil {
-		return nil
-	}
-
-	return benchmark
-}
-
-func generateOutputFile(filePath string) {
-	outFile := resolveOutputFileName(shared.FlagState.OutputFile)
-	// first try to convert to benchmark
-	benchmark := convertToBenchmark(filePath)
-
-	// if it fails, try to parse results from txt, or bench event json
-	if benchmark == nil {
-		filePath = preprocessInputFile(filePath)
-		results := prepareBenchmarkData(filePath)
-		benchmark = prepareBenchmarkFromParsedResults(results)
-	}
-
-	f := shared.MustCreateFile(outFile)
-
-	defer f.Close()
-
-	writeOutput(f, benchmark, inferFormatFromExtension(outFile))
-
-	HandleOutputResult(f)
-}
-
-// inferFormatFromExtension returns the output format based on file extension
-func inferFormatFromExtension(outFile string) string {
-	switch ext := strings.ToLower(filepath.Ext(outFile)); ext {
-	case ".json":
-		return "json"
-	default:
-		return "html"
-	}
-}
-
-// resolveOutputFileName decides final output file name and infers format from extension
-func resolveOutputFileName(outFile string) string {
-	// create a temp file if we need to print the output inside stdout (default to html)
-	if outFile == "" {
-		tmpFilePath := shared.MustCreateTempFile(shared.TempBenchFilePrefix, "html")
-		shared.TempFiles.Store(tmpFilePath)
-		return tmpFilePath
-	}
-
-	// if file doesn't have an extension, add the default html extension
-	if filepath.Ext(outFile) == "" {
-		outFile += ".html"
-	}
-
-	return outFile
-}
-
-// preprocessInputFile handles JSON → TXT conversion if needed
-func preprocessInputFile(filePath string) string {
-	if shared.FlagState.Parser == "go" && utils.IsBenchJSONFile(filePath) {
-		return goparser.ConvertGoJsonBenchToText(filePath)
-	}
-
-	return filePath
-}
-
-// prepareBenchmarkData parses benchmark results or exits on error
-func prepareBenchmarkData(filePath string) []shared.BenchmarkData {
-	parseFn, err := parser.GetParser(shared.FlagState.Parser)
+	// Parse the per-chart --chart overrides into typed Configs. Unknown chart
+	// types or out-of-range values are CLI errors; keys valid for another chart
+	// type are dropped with a warning.
+	overrides, warnings, err := shared.ParseOverrides(rootChartSpecs, rootCharts, nil)
 	if err != nil {
 		shared.ExitWithError(err.Error(), nil)
 	}
-
-	data := parseFn(filePath)
-
-	if len(data) == 0 {
-		shared.ExitWithError("No benchmark data found", nil)
+	for _, w := range warnings {
+		cliout.Warn(w)
 	}
 
-	return data
-}
+	// The root command's chart-seed flags (sort/labels/stat) seed every chart;
+	// the per-chart --chart override (when present) wins over the seed. Scale is
+	// per-chart only, so it is not seeded here — Materialise applies the "linear"
+	// default from the chart's own ScaleFlag.
+	seed := rootBag.ChartSeed(cmd)
 
-func prepareBenchmarkFromParsedResults(results []shared.BenchmarkData) *shared.Benchmark {
-	benchmark := &shared.Benchmark{
-		Name:        shared.FlagState.Name,
-		Description: shared.FlagState.Description,
-		Data:        results,
-	}
-	enableSorting := shared.FlagState.Sort != ""
-
-	benchmark.CPU.Cores = shared.CPUCount
-	benchmark.CPU.Name = strings.TrimSpace(shared.CPU)
-	benchmark.Arch = shared.Arch
-	benchmark.OS = shared.OS
-	benchmark.Pkg = shared.Pkg
-	benchmark.Settings.Charts = shared.FlagState.Charts
-	benchmark.Settings.Sort.Enabled = enableSorting
-
-	if enableSorting {
-		benchmark.Settings.Sort.Order = shared.FlagState.Sort
-	} else {
-		benchmark.Settings.Sort.Order = "asc"
-	}
-
-	benchmark.Settings.ShowLabels = shared.FlagState.ShowLabels
-	benchmark.Settings.Scale = shared.FlagState.Scale
-
-	benchmark.Tag = shared.FlagState.Tag
-	benchmark.Timestamp = time.Now().UTC().Format(time.RFC3339)
-
-	return benchmark
-}
-
-// writeOutput writes results to file in required format
-func writeOutput(f *os.File, benchmark *shared.Benchmark, format string) {
-	switch format {
-	case "html":
-		fmt.Println(style.Info.Render("🔄 Generating Chart..."))
-
-		jsonData, err := json.Marshal(benchmark)
+	configs := make([]internal_charts.ChartConfig, 0, len(rootCharts))
+	for _, chartType := range rootCharts {
+		cfg, err := internal_charts.Materialise(chartType, seed, overrides[chartType])
 		if err != nil {
-			shared.ExitWithError("Failed to marshal benchmark data: %v", err)
+			shared.ExitWithError(err.Error(), nil)
 		}
-
-		htmlContent := template.GenerateHTMLBenchmarkUI(jsonData, template.VizbHTMLTemplate)
-		if _, err := f.WriteString(htmlContent); err != nil {
-			shared.ExitWithError("Failed to write output file: %v", err)
-		}
-
-		fmt.Println(style.Success.Render("🎉 Generated HTML chart successfully!"))
-
-	case "json":
-		fmt.Println(style.Info.Render("🔄 Generating JSON..."))
-		bytes, err := json.Marshal(benchmark)
-		if err != nil {
-			shared.ExitWithError("Error marshaling benchmark data", err)
-		}
-		f.Write(bytes)
-		fmt.Println(style.Success.Render("🎉 Generated JSON successfully!"))
+		configs = append(configs, cfg)
 	}
+
+	// applyOnPassthrough is false: the root command preserves an existing Dataset
+	// JSON as-is (matching historical behaviour).
+	cli.RunLinear(cmd, args, rootBag.Meta(), rootBag.ParseConfig(), configs, false)
 }
 
-// HandleOutputResult manages printing or showing final result
-func HandleOutputResult(f *os.File) {
-	if shared.FlagState.OutputFile != "" {
-		fmt.Println(style.Info.Render(fmt.Sprintf("📄 Output file: %s", f.Name())))
-		return
-	}
+func validateRootOptions(cmd *cobra.Command) {
+	rootBag.Validate(cmd)
+	utils.ApplyValidationRules([]utils.ValidationRule{{
+		Label:        "charts",
+		SliceValue:   &rootCharts,
+		ValidSet:     validChartTypes,
+		Normalizer:   strings.ToLower,
+		SliceDefault: defaultChartTypes,
+	}})
+}
 
-	content, err := os.ReadFile(f.Name())
-	if err != nil {
-		shared.ExitWithError("Error reading output file", err)
+// warnDeprecatedRootFlags emits a stderr warning when the root command's global
+// --sort or --show-labels flag is explicitly set, recommending the per-chart
+// --chart override equivalent. The flags remain functional — this is a
+// deprecation notice only, not a removal. Chart subcommands (vizb bar, etc.)
+// have their own per-chart --sort/--show-labels and are NOT deprecated.
+func warnDeprecatedRootFlags(cmd *cobra.Command) {
+	if cmd.Flags().Changed("sort") {
+		cliout.Warn("--sort is deprecated on the root command; use --chart <type>:sort=<asc|desc> instead (e.g. --chart bar:sort=asc)")
 	}
-	fmt.Print("\033[H\033[2J") // clear screen
-	fmt.Println(string(content))
+	if cmd.Flags().Changed("show-labels") {
+		cliout.Warn("--show-labels is deprecated on the root command; use --chart <type>:labels instead (e.g. --chart pie:labels)")
+	}
 }

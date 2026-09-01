@@ -1,39 +1,82 @@
-# Vizb Examples
+# Vizb examples
 
-Benchmark output files used to generate the vizb examples dashboard, organized by language.
+Sample inputs for the live dashboards on [vizb.goptics.org/examples/live/](https://vizb.goptics.org/examples/live/). CI turns each recipe into JSON, merges them into one HTML page **per topic**, and deploys to the `website` branch.
 
-## How it works
+## Topics
 
-Push changes to `examples/{go,javascript,rust}/` to trigger a per-language CI pipeline that:
+| Topic | Source folder | Workflow | Live dashboard |
+|-------|---------------|----------|----------------|
+| Tabular data | `examples/csv/` | [tabular-data-examples.yml](../.github/workflows/tabular-data-examples.yml) | [tabular-data](https://vizb.goptics.org/examples/live/tabular-data/) |
+| Math & 3D | `examples/csv/` | [math-and-3d-examples.yml](../.github/workflows/math-and-3d-examples.yml) | [math-and-3d](https://vizb.goptics.org/examples/live/math-and-3d/) |
+| Comparisons | `examples/csv/` | [comparisons-examples.yml](../.github/workflows/comparisons-examples.yml) | [comparisons](https://vizb.goptics.org/examples/live/comparisons/) |
+| GitHub Legends | _(API-fetched in CI)_ | [github-legends.yml](../.github/workflows/github-legends.yml) | [github-legends](https://vizb.goptics.org/examples/live/github-legends/) |
+| Go | `examples/go/` | [go-examples.yml](../.github/workflows/go-examples.yml) | [go](https://vizb.goptics.org/examples/live/go/) |
+| JavaScript | `examples/javascript/` | [javascript-examples.yml](../.github/workflows/javascript-examples.yml) | [javascript](https://vizb.goptics.org/examples/live/javascript/) |
+| Rust | `examples/rust/` | [rust-examples.yml](../.github/workflows/rust-examples.yml) | [rust](https://vizb.goptics.org/examples/live/rust/) |
 
-1. Converts each `.txt` bench file to JSON with per-benchmark name, description, and group pattern
-2. Merges all JSONs into a single HTML dashboard for that language
-3. Deploys to GitHub Pages on the `website` branch
+CSV input files stay under `examples/csv/`; live HTML is split by **purpose** (tabular vs math vs comparisons), not by parser name.
 
-## Live dashboards
+Tabular CSV recipes (auto-group, auto-value, 3D): [csv/README.md](csv/README.md).
 
-| Language | Workflow | Dashboard |
-|----------|----------|-----------|
-| Go       | `.github/workflows/deploy-examples-go.yml`       | [vizb.goptics.org/examples/go/][go-dash]       |
-| JavaScript | `.github/workflows/deploy-examples-javascript.yml` | [vizb.goptics.org/examples/javascript/][js-dash] |
-| Rust     | `.github/workflows/deploy-examples-rust.yml`     | [vizb.goptics.org/examples/rust/][rust-dash]     |
+Docs: [vizb.goptics.org/examples/](https://vizb.goptics.org/examples/).
 
-[go-dash]: https://vizb.goptics.org/examples/go/
-[js-dash]: https://vizb.goptics.org/examples/javascript/
-[rust-dash]: https://vizb.goptics.org/examples/rust/
+Open a specific chart with `?id=<id>` — each matrix entry sets a numbered id via the action `id` input (forwarded as `--id`). Keep ids chronological (`00-`, `01-`, …) **within each topic dashboard** so the prefix stays in sync with `?d=0`, `?d=1`, … index in the same matrix order.
 
-## Adding a new benchmark
+## Adding an example
 
-1. Drop a `.txt` bench output file into `examples/{language}/`
-2. Add a matrix entry in the corresponding workflow (e.g. `.github/workflows/deploy-examples-go.yml`):
+### GitHub Legends (contribution skylines)
+
+No repo file to add. Append one row to the matrix in [github-legends.yml](../.github/workflows/github-legends.yml) — only `id` and `user`:
 
 ```yaml
-- output: my-benchmark
-  bench-file: my-benchmark.txt
-  name: "My Benchmark"
-  description: "What this benchmark measures"
-  group-pattern: "x/y"      # or group-regex for regex grouping
-  scale: "linear"            # or "log"
+- id: 07-octocat        # numbered ?id= deep link; prefix matches ?d=7 in matrix order
+  user: octocat         # chart title and API path; no other matrix fields needed
 ```
 
-3. Push — the CI rebuilds and deploys automatically.
+`id` must stay numbered (`00-`, `01-`, …) in matrix order. The workflow step already wires `curl`, `--json-path`, `--select`, date grouping, and 3D bar flags — copy a row, bump the number, set `user`. The dashboard rebuilds on release and every **Friday** (scheduled workflow).
+
+Optionally add a row to [docs/src/content/docs/examples/github-legends.mdx](../docs/src/content/docs/examples/github-legends.mdx).
+
+### CSV topics (tabular / math / comparisons)
+
+1. **Add the file** — `examples/csv/my-data.csv`
+2. **Add a matrix entry** — in the matching workflow:
+   - Business / mixed tables → [tabular-data-examples.yml](../.github/workflows/tabular-data-examples.yml)
+   - All-numeric 3D / surfaces → [math-and-3d-examples.yml](../.github/workflows/math-and-3d-examples.yml)
+   - Wide competitor tables → [comparisons-examples.yml](../.github/workflows/comparisons-examples.yml)
+3. **Push** — CI rebuilds that dashboard on [vizb.goptics.org](https://vizb.goptics.org)
+
+### Go / JavaScript / Rust
+
+1. **Add the file** — `examples/{go,javascript,rust}/my-data.txt`
+2. **Add a matrix entry** — in `.github/workflows/prepare-{go,javascript,rust}-examples.yml`
+3. **Push** — CI rebuilds that dashboard
+
+```yaml
+- id: 07-my-chart          # required — numbered ?id= deep link; prefix matches ?d=7
+  file: my-data            # required — basename only (no extension)
+  name: "My Chart"         # required — title in the dashboard
+  description: "…"         # optional — subtitle / tooltip
+  charts: bar              # optional — csv: bar | line | scatter | …
+  chart: |                 # optional — per-chart overrides (see action.yml)
+    bar:scale=log,sort=asc
+    line:scale=log,sort=asc
+  group: "a,b,c"           # optional — csv; omit for auto-group / auto-value
+  group-pattern: "n,x,y"   # optional — with group (commas for csv, slashes for benchmarks)
+  group-regex: "…"         # optional — benchmarks; use instead of group-pattern
+  filter: "Decode"         # optional — benchmarks: filter rows by name
+  parser: rs:criterion     # optional — when auto-detect is not enough
+```
+
+Only `id`, `file`, and `name` are required. Use `chart` for scale, sort, and 3D flags — not the deprecated `sort` input or a bare `scale` field (action.yml has no `scale` input). Copy a nearby matrix row and edit.
+
+For a new **CSV** file, also add a short blurb to [csv/README.md](csv/README.md) and the matching topic docs page under `docs/src/content/docs/examples/`.
+
+## Try locally
+
+```bash
+vizb bar examples/csv/sales.csv -o out.html
+vizb -P go examples/go/hash.txt -o out.html
+```
+
+Docs and install: [vizb.goptics.org](https://vizb.goptics.org)

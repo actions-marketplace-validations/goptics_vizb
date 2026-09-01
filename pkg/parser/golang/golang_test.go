@@ -1,14 +1,12 @@
 package golang
 
 import (
-	"bufio"
-	"log"
-	"os"
-	"path/filepath"
+	"errors"
+	"io"
+	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/goptics/vizb/pkg/parser"
 	"github.com/goptics/vizb/shared"
@@ -21,23 +19,37 @@ type testBlock struct {
 	timeUnit       string
 	memUnit        string
 	allocUnit      string
-	expected       []shared.BenchmarkData
+	expected       []shared.DataPoint
 	expectMemStats bool
 	expectCPUCount int
 }
 
-func TestParseGoBenchmark(t *testing.T) {
-	origTimeUnit := shared.FlagState.TimeUnit
-	origMemUnit := shared.FlagState.MemUnit
-	origAllocUnit := shared.FlagState.NumberUnit
+// GoBenchmarkSuite exercises ParseGoBenchmark with a per-case parser.Config.
+type GoBenchmarkSuite struct {
+	suite.Suite
+}
 
-	defer func() {
-		shared.FlagState.TimeUnit = origTimeUnit
-		shared.FlagState.MemUnit = origMemUnit
-		shared.FlagState.NumberUnit = origAllocUnit
-		shared.CPUCount = 0
-	}()
+type goErrorReader struct{}
 
+func (goErrorReader) Read([]byte) (int, error) {
+	return 0, errors.New("injected read failure")
+}
+
+type dataErrorReader struct {
+	data []byte
+	err  error
+	done bool
+}
+
+func (r *dataErrorReader) Read(p []byte) (int, error) {
+	if r.done {
+		return 0, r.err
+	}
+	r.done = true
+	return copy(p, r.data), r.err
+}
+
+func (s *GoBenchmarkSuite) TestParseGoBenchmark() {
 	tests := []testBlock{
 		{
 			name: "Basic benchmark without memory stats",
@@ -47,25 +59,10 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			timeUnit: "ns",
 			pattern:  "y",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "Simple",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-					},
-				},
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "SimpleBench",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 100.45},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "Simple", Stats: []shared.Stat{{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)}}},
+				{YAxis: "SimpleBench", Stats: []shared.Stat{{Type: "Execution Time (ns/op)", Value: shared.F64(100.45)}}},
 			},
-			expectMemStats: false,
 			expectCPUCount: 0,
 		},
 		{
@@ -77,20 +74,14 @@ func TestParseGoBenchmark(t *testing.T) {
 			timeUnit:  "ms",
 			memUnit:   "KB",
 			allocUnit: "K",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "WithMem",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ms/op)", Value: 0.00},
-						{Type: "Memory Usage (KB/op)", Value: 0.06},
-						{Type: "Allocations (K/op)", Value: 0.00},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "WithMem", Stats: []shared.Stat{
+					{Type: "Execution Time (ms/op)", Value: shared.F64(0.00012345)},
+					{Type: "Memory Usage (KB/op)", Value: shared.F64(0.0625)},
+					{Type: "Allocations (K/op)", Value: shared.F64(0.002)},
+				}},
 			},
 			expectMemStats: true,
-			expectCPUCount: 0,
 		},
 		{
 			name: "Multiple benchmarks with workloads",
@@ -98,34 +89,22 @@ func TestParseGoBenchmark(t *testing.T) {
 				"BenchmarkGroup/Task/SubjectA 100 123.45 ns/op 64.0 B/op 2 allocs/op",
 				"BenchmarkGroup/Task/SubjectB 100 234.56 ns/op 128.0 B/op 4 allocs/op",
 			},
-			pattern:   "n/x/y",
-			timeUnit:  "ns",
-			memUnit:   "b",
-			allocUnit: "",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "Group",
-					XAxis: "Task",
-					YAxis: "SubjectA",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-						{Type: "Memory Usage (b/op)", Value: 512.0},
-						{Type: "Allocations/op", Value: 2.0},
-					},
-				},
-				{
-					Name:  "Group",
-					XAxis: "Task",
-					YAxis: "SubjectB",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 234.56},
-						{Type: "Memory Usage (b/op)", Value: 1024.0},
-						{Type: "Allocations/op", Value: 4.0},
-					},
-				},
+			pattern:  "n/x/y",
+			timeUnit: "ns",
+			memUnit:  "b",
+			expected: []shared.DataPoint{
+				{Name: "Group", XAxis: "Task", YAxis: "SubjectA", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)},
+					{Type: "Memory Usage (b/op)", Value: shared.F64(512.0)},
+					{Type: "Allocations/op", Value: shared.F64(2.0)},
+				}},
+				{Name: "Group", XAxis: "Task", YAxis: "SubjectB", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(234.56)},
+					{Type: "Memory Usage (b/op)", Value: shared.F64(1024.0)},
+					{Type: "Allocations/op", Value: shared.F64(4.0)},
+				}},
 			},
 			expectMemStats: true,
-			expectCPUCount: 0,
 		},
 		{
 			name: "Benchmark with CPU count in subject",
@@ -134,17 +113,11 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			pattern:  "n/y",
 			timeUnit: "ns",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "Parallel",
-					XAxis: "",
-					YAxis: "SubjectA",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-					},
-				},
+			expected: []shared.DataPoint{
+				{Name: "Parallel", YAxis: "SubjectA", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)},
+				}},
 			},
-			expectMemStats: false,
 			expectCPUCount: 8,
 		},
 		{
@@ -156,19 +129,9 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			timeUnit: "ns",
 			pattern:  "y",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "Test",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "Test", Stats: []shared.Stat{{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)}}},
 			},
-
-			expectMemStats: false,
-			expectCPUCount: 0,
 		},
 		{
 			name: "Benchmarks with varying iterations",
@@ -178,34 +141,22 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			timeUnit: "ns",
 			pattern:  "y",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "A",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 100.0},
-						{Type: "Iterations", Value: 100},
-					},
-				},
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "B",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 100.0},
-						{Type: "Iterations", Value: 200},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "A", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(100.0)},
+					{Type: "Iterations", Value: shared.F64(100)},
+				}},
+				{YAxis: "B", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(100.0)},
+					{Type: "Iterations", Value: shared.F64(200)},
+				}},
 			},
-			expectMemStats: false,
-			expectCPUCount: 0,
 		},
 		{
 			name:         "Empty file",
 			benchContent: []string{},
 			timeUnit:     "ns",
-			expected:     []shared.BenchmarkData{},
+			expected:     []shared.DataPoint{},
 		},
 		{
 			name: "Benchmark with B/s (Throughput)",
@@ -214,19 +165,12 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			pattern:  "y",
 			timeUnit: "ns",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "Throughput",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-						{Type: "Throughput (B/s)", Value: 512.0},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "Throughput", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)},
+					{Type: "Throughput (B/s)", Value: shared.F64(512.0)},
+				}},
 			},
-			expectMemStats: false,
-			expectCPUCount: 0,
 		},
 		{
 			name: "Benchmark with MB/s (Throughput)",
@@ -235,19 +179,12 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			pattern:  "y",
 			timeUnit: "ns",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "Throughput",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-						{Type: "Throughput (MB/s)", Value: 1024.0},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "Throughput", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)},
+					{Type: "Throughput (MB/s)", Value: shared.F64(1024.0)},
+				}},
 			},
-			expectMemStats: false,
-			expectCPUCount: 0,
 		},
 		{
 			name: "Benchmark with GB/s (Throughput)",
@@ -256,19 +193,12 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			pattern:  "y",
 			timeUnit: "ns",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "Throughput",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-						{Type: "Throughput (GB/s)", Value: 2.5},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "Throughput", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)},
+					{Type: "Throughput (GB/s)", Value: shared.F64(2.5)},
+				}},
 			},
-			expectMemStats: false,
-			expectCPUCount: 0,
 		},
 		{
 			name: "Benchmark with custom throughput metric (res/s)",
@@ -277,19 +207,12 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			pattern:  "y",
 			timeUnit: "ns",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "Custom",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-						{Type: "Throughput (res/s)", Value: 5000.0},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "Custom", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)},
+					{Type: "Throughput (res/s)", Value: shared.F64(5000.0)},
+				}},
 			},
-			expectMemStats: false,
-			expectCPUCount: 0,
 		},
 		{
 			name: "Benchmark with custom metric (non-throughput)",
@@ -298,228 +221,263 @@ func TestParseGoBenchmark(t *testing.T) {
 			},
 			pattern:  "y",
 			timeUnit: "ns",
-			expected: []shared.BenchmarkData{
-				{
-					Name:  "",
-					XAxis: "",
-					YAxis: "Custom",
-					Stats: []shared.Stat{
-						{Type: "Execution Time (ns/op)", Value: 123.45},
-						{Type: "Metric (customUnit)", Value: 42.5},
-					},
-				},
+			expected: []shared.DataPoint{
+				{YAxis: "Custom", Stats: []shared.Stat{
+					{Type: "Execution Time (ns/op)", Value: shared.F64(123.45)},
+					{Type: "Metric (customUnit)", Value: shared.F64(42.5)},
+				}},
 			},
-			expectMemStats: false,
-			expectCPUCount: 0,
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			shared.FlagState.TimeUnit = tt.timeUnit
-			shared.FlagState.MemUnit = tt.memUnit
-			shared.FlagState.NumberUnit = tt.allocUnit
-			shared.FlagState.GroupPattern = tt.pattern
-			shared.CPUCount = 0
-
-			tempDir := t.TempDir()
-			filePath := filepath.Join(tempDir, "bench.txt")
-
-			file, err := os.Create(filePath)
-			require.NoError(t, err, "Failed to create test file")
-
-			writer := bufio.NewWriter(file)
-			for _, event := range tt.benchContent {
-				writer.WriteString(event)
-				writer.WriteString("\n")
+		s.Run(tt.name, func() {
+			cfg := parser.Config{
+				GroupPattern: tt.pattern,
+				TimeUnit:     tt.timeUnit,
+				MemUnit:      tt.memUnit,
+				NumberUnit:   tt.allocUnit,
 			}
 
-			err = writer.Flush()
-			if err != nil {
-				log.Fatal(err)
-			}
+			results, _, system, err := ParseGoBenchmark(strings.NewReader(strings.Join(tt.benchContent, "\n")), cfg)
+			s.Require().NoError(err)
 
-			file.Close()
-
-			results := ParseGoBenchmark(filePath)
-
-			require.Len(t, results, len(tt.expected), "ParseGoBenchmark() returned %d results, expected %d", len(results), len(tt.expected))
+			s.Require().Len(results, len(tt.expected))
 
 			for i, expected := range tt.expected {
 				actual := results[i]
-				assert.Equal(t, expected.Name, actual.Name, "Result[%d].Name mismatch", i)
-				assert.Equal(t, expected.XAxis, actual.XAxis, "Result[%d].XAxis mismatch", i)
-				assert.Equal(t, expected.YAxis, actual.YAxis, "Result[%d].YAxis mismatch", i)
+				s.Equal(expected.Name, actual.Name, "Result[%d].Name", i)
+				s.Equal(expected.XAxis, actual.XAxis, "Result[%d].XAxis", i)
+				s.Equal(expected.YAxis, actual.YAxis, "Result[%d].YAxis", i)
 
-				require.Len(t, actual.Stats, len(expected.Stats), "Result[%d] stats count mismatch", i)
+				s.Require().Len(actual.Stats, len(expected.Stats), "Result[%d] stats count", i)
 
 				for j, expectedStat := range expected.Stats {
 					actualStat := actual.Stats[j]
-					assert.Equal(t, expectedStat.Type, actualStat.Type, "Result[%d].Stats[%d].Type mismatch", i, j)
-					assert.InDelta(t, expectedStat.Value, actualStat.Value, 0.001, "Result[%d].Stats[%d].Value mismatch", i, j)
+					s.Equal(expectedStat.Type, actualStat.Type, "Result[%d].Stats[%d].Type", i, j)
+					s.InDelta(*expectedStat.Value, *actualStat.Value, 0.001, "Result[%d].Stats[%d].Value", i, j)
 				}
 			}
 
-			assert.Equal(t, tt.expectCPUCount, shared.CPUCount, "CPUCount mismatch")
+			cpuCount := 0
+			if system != nil && system.CPU != nil {
+				cpuCount = system.CPU.Cores
+			}
+			s.Equal(tt.expectCPUCount, cpuCount, "CPUCount")
 		})
 	}
 }
 
-func TestConvertGoJsonBenchToText(t *testing.T) {
-	tempDir := t.TempDir()
+func (s *GoBenchmarkSuite) TestParseGoBenchmarkReturnsSystemMetadata() {
+	input := strings.Join([]string{
+		"goos: linux",
+		"goarch: arm64",
+		"pkg: example.com/request-a",
+		"cpu: Request A CPU",
+		"BenchmarkExample-12 100 123 ns/op",
+	}, "\n")
 
-	t.Run("Valid JSON events", func(t *testing.T) {
-		jsonFile := filepath.Join(tempDir, "events.json")
-		content := `{"Action":"output","Output":"BenchmarkA 100 100 ns/op\n"}
-	{"Action":"output","Output":"BenchmarkB 200 200 ns/op\n"}`
-		err := os.WriteFile(jsonFile, []byte(content), 0644)
-		require.NoError(t, err, "Failed to write json file")
+	_, _, system, err := ParseGoBenchmark(strings.NewReader(input), parser.Config{GroupPattern: "y"})
 
-		txtFile := ConvertGoJsonBenchToText(jsonFile)
-		defer os.Remove(txtFile)
+	s.Require().NoError(err)
+	s.Require().NotNil(system)
+	s.Equal("linux", system.OS)
+	s.Equal("arm64", system.Arch)
+	s.Equal("example.com/request-a", system.Pkg)
+	s.Equal(&shared.CPUInfo{Name: "Request A CPU", Cores: 12}, system.CPU)
+}
 
-		txtContent, err := os.ReadFile(txtFile)
-		require.NoError(t, err, "Failed to read result file")
+// Unformatted B/s and custom metrics still honor cfg.Round (no unit convert path).
+func (s *GoBenchmarkSuite) TestThroughputAndCustomMetricsRoundWhenEnabled() {
+	input := strings.Join([]string{
+		"BenchmarkThroughput 100 123.456 ns/op 512.456 B/s",
+		"BenchmarkCustom 100 123.456 ns/op 42.567 customUnit",
+		"BenchmarkRes 100 123.456 ns/op 5000.128 res/s",
+	}, "\n")
 
-		expected := "BenchmarkA 100 100 ns/op\nBenchmarkB 200 200 ns/op\n"
-		assert.Equal(t, expected, string(txtContent))
+	full, _, _, err := ParseGoBenchmark(strings.NewReader(input), parser.Config{
+		GroupPattern: "y",
+		TimeUnit:     "ns",
+	})
+	s.Require().NoError(err)
+	s.Require().Len(full, 3)
+	s.InDelta(512.456, *full[0].Stats[1].Value, 1e-9)
+	s.InDelta(42.567, *full[1].Stats[1].Value, 1e-9)
+	s.InDelta(5000.128, *full[2].Stats[1].Value, 1e-9)
+
+	rounded, _, _, err := ParseGoBenchmark(strings.NewReader(input), parser.Config{
+		GroupPattern: "y",
+		TimeUnit:     "ns",
+		Round:        true,
+	})
+	s.Require().NoError(err)
+	s.Require().Len(rounded, 3)
+	s.Equal(123.46, *rounded[0].Stats[0].Value) // ns/op also rounded
+	s.Equal(512.46, *rounded[0].Stats[1].Value)
+	s.Equal(42.57, *rounded[1].Stats[1].Value)
+	s.Equal(5000.13, *rounded[2].Stats[1].Value)
+}
+
+func (s *GoBenchmarkSuite) TestParseGoBenchmarkReturnsErrors() {
+	benchmark := "BenchmarkExample 100 123 ns/op"
+
+	s.Run("invalid filter", func() {
+		_, _, _, err := ParseGoBenchmark(strings.NewReader(benchmark), parser.Config{
+			GroupPattern: "y",
+			Filter:       "[",
+		})
+		s.ErrorContains(err, "invalid filter regex")
 	})
 
-	t.Run("Mixed actions", func(t *testing.T) {
-		jsonFile := filepath.Join(tempDir, "mixed.json")
-		content := `{"Action":"run","Test":"BenchmarkA"}
-	{"Action":"output","Output":"BenchmarkA 100 100 ns/op\n"}
-	{"Action":"pass","Test":"BenchmarkA"}`
-		err := os.WriteFile(jsonFile, []byte(content), 0644)
-		require.NoError(t, err, "Failed to write json file")
+	s.Run("invalid benchmark group pattern", func() {
+		_, _, _, err := ParseGoBenchmark(strings.NewReader(benchmark), parser.Config{
+			GroupPattern: "[n/y]",
+		})
+		s.ErrorContains(err, "bracket slots")
+	})
 
-		txtFile := ConvertGoJsonBenchToText(jsonFile)
-		defer os.Remove(txtFile)
+	s.Run("filter excludes benchmark", func() {
+		results, _, _, err := ParseGoBenchmark(strings.NewReader(benchmark), parser.Config{
+			GroupPattern: "y",
+			Filter:       "^Other$",
+		})
+		s.Require().NoError(err)
+		s.Empty(results)
+	})
 
-		txtContent, err := os.ReadFile(txtFile)
-		require.NoError(t, err, "Failed to read result file")
+	s.Run("non-result record is ignored", func() {
+		results, _, _, err := ParseGoBenchmark(strings.NewReader("BenchmarkBroken not-a-result\n"), parser.Config{
+			GroupPattern: "y",
+		})
+		s.Require().NoError(err)
+		s.Empty(results)
+	})
 
-		expected := "BenchmarkA 100 100 ns/op\n"
-		assert.Equal(t, expected, string(txtContent))
+	s.Run("reader failure", func() {
+		_, _, _, err := ParseGoBenchmark(goErrorReader{}, parser.Config{GroupPattern: "y"})
+		s.ErrorContains(err, "read Go benchmark")
+	})
+
+	s.Run("benchmark reader fails after text", func() {
+		input := &dataErrorReader{
+			data: []byte("BenchmarkExample 100 123 ns/op\n"),
+			err:  errors.New("injected trailing failure"),
+		}
+		_, _, _, err := ParseGoBenchmark(input, parser.Config{GroupPattern: "y"})
+		s.ErrorContains(err, "read Go benchmark")
 	})
 }
 
-func TestShouldIncludeBenchmark(t *testing.T) {
-	origFilter := shared.FlagState.FilterRegex
-	defer func() {
-		shared.FlagState.FilterRegex = origFilter
-	}()
+func (s *GoBenchmarkSuite) TestParseGoBenchmarkJSONEvents() {
+	input := strings.Join([]string{
+		`{"Action":"run","Test":"BenchmarkExample"}`,
+		`{"Action":"output","Output":"BenchmarkExample-8 100 123 ns/op\n"}`,
+		`{"Action":"pass","Test":"BenchmarkExample"}`,
+	}, "\n")
 
+	results, _, system, err := ParseGoBenchmark(strings.NewReader(input), parser.Config{
+		GroupPattern: "y",
+		TimeUnit:     "ns",
+	})
+
+	s.Require().NoError(err)
+	s.Require().Len(results, 1)
+	s.Equal("Example", results[0].YAxis)
+	s.Require().NotNil(system)
+	s.Equal(&shared.CPUInfo{Cores: 8}, system.CPU)
+	s.Require().Len(results[0].Stats, 1)
+	s.Equal("Execution Time (ns/op)", results[0].Stats[0].Type)
+	s.InDelta(123, *results[0].Stats[0].Value, 0.001)
+}
+
+func (s *GoBenchmarkSuite) TestParseGoBenchmarkJSONEventErrors() {
+	s.Run("malformed later event", func() {
+		input := "{\"Action\":\"run\"}\nnot-json\n"
+		_, _, _, err := ParseGoBenchmark(strings.NewReader(input), parser.Config{GroupPattern: "y"})
+		s.ErrorContains(err, "read Go benchmark JSON")
+	})
+
+	s.Run("first event reader failure", func() {
+		input := &dataErrorReader{
+			data: []byte(`{"Action":"run"}`),
+			err:  errors.New("injected event failure"),
+		}
+		_, _, _, err := ParseGoBenchmark(input, parser.Config{GroupPattern: "y"})
+		s.ErrorContains(err, "read Go benchmark JSON")
+	})
+
+	s.Run("later event reader failure", func() {
+		input := &dataErrorReader{
+			data: []byte("{\"Action\":\"run\"}\n"),
+			err:  errors.New("injected event failure"),
+		}
+		_, _, _, err := ParseGoBenchmark(input, parser.Config{GroupPattern: "y"})
+		s.ErrorContains(err, "read Go benchmark JSON")
+	})
+
+	s.Run("JSON object without action remains benchmark text", func() {
+		input, err := prepareBenchmarkInput(strings.NewReader(`{"Output":"not an event"}`))
+		s.Require().NoError(err)
+		content, err := io.ReadAll(input)
+		s.Require().NoError(err)
+		s.Equal(`{"Output":"not an event"}`, string(content))
+	})
+
+	s.Run("single event without trailing newline", func() {
+		input := `{"Action":"output","Output":"BenchmarkExample 100 123 ns/op\n"}`
+		results, _, _, err := ParseGoBenchmark(strings.NewReader(input), parser.Config{
+			GroupPattern: "y",
+			TimeUnit:     "ns",
+		})
+		s.Require().NoError(err)
+		s.Len(results, 1)
+	})
+}
+
+func TestGoBenchmarkSuite(t *testing.T) {
+	suite.Run(t, new(GoBenchmarkSuite))
+}
+
+// ShouldIncludeBenchmarkSuite exercises parser.ShouldIncludeBenchmark via a
+// per-case parser.Config filter.
+type ShouldIncludeBenchmarkSuite struct {
+	suite.Suite
+}
+
+func (s *ShouldIncludeBenchmarkSuite) TestShouldIncludeBenchmark() {
 	tests := []struct {
 		name      string
 		filter    string
 		benchName string
 		expected  bool
 	}{
-		{
-			name:      "Empty filter includes all",
-			filter:    "",
-			benchName: "AnyBenchmark",
-			expected:  true,
-		},
-		{
-			name:      "Exact match",
-			filter:    "^TestBenchmark$",
-			benchName: "TestBenchmark",
-			expected:  true,
-		},
-		{
-			name:      "Exact match fails on partial",
-			filter:    "^TestBenchmark$",
-			benchName: "TestBenchmarkExtra",
-			expected:  false,
-		},
-		{
-			name:      "Partial match with substring",
-			filter:    "Success",
-			benchName: "BenchmarkValidateSuccess",
-			expected:  true,
-		},
-		{
-			name:      "Partial match fails",
-			filter:    "Success",
-			benchName: "BenchmarkValidateFail",
-			expected:  false,
-		},
-		{
-			name:      "Regex with alternation",
-			filter:    "Encode|Decode",
-			benchName: "BenchmarkEncode",
-			expected:  true,
-		},
-		{
-			name:      "Regex with alternation second option",
-			filter:    "Encode|Decode",
-			benchName: "BenchmarkDecode",
-			expected:  true,
-		},
-		{
-			name:      "Regex with alternation no match",
-			filter:    "Encode|Decode",
-			benchName: "BenchmarkTransform",
-			expected:  false,
-		},
-		{
-			name:      "Regex with prefix anchor",
-			filter:    "^Parse",
-			benchName: "ParseJSON",
-			expected:  true,
-		},
-		{
-			name:      "Regex with prefix anchor fails",
-			filter:    "^Parse",
-			benchName: "JSONParse",
-			expected:  false,
-		},
-		{
-			name:      "Regex with suffix anchor",
-			filter:    "Fast$",
-			benchName: "BenchmarkFast",
-			expected:  true,
-		},
-		{
-			name:      "Regex with suffix anchor fails",
-			filter:    "Fast$",
-			benchName: "FastBenchmark",
-			expected:  false,
-		},
-		{
-			name:      "Complex regex pattern",
-			filter:    "Benchmark(Parse|Validate).*JSON",
-			benchName: "BenchmarkParseComplexJSON",
-			expected:  true,
-		},
-		{
-			name:      "Complex regex pattern no match",
-			filter:    "Benchmark(Parse|Validate).*JSON",
-			benchName: "BenchmarkParseXML",
-			expected:  false,
-		},
-		{
-			name:      "Case sensitive match",
-			filter:    "test",
-			benchName: "Test",
-			expected:  false,
-		},
-		{
-			name:      "Case insensitive regex",
-			filter:    "(?i)test",
-			benchName: "TEST",
-			expected:  true,
-		},
+		{"Empty filter includes all", "", "AnyBenchmark", true},
+		{"Exact match", "^TestBenchmark$", "TestBenchmark", true},
+		{"Exact match fails on partial", "^TestBenchmark$", "TestBenchmarkExtra", false},
+		{"Partial match with substring", "Success", "BenchmarkValidateSuccess", true},
+		{"Partial match fails", "Success", "BenchmarkValidateFail", false},
+		{"Regex with alternation", "Encode|Decode", "BenchmarkEncode", true},
+		{"Regex with alternation second option", "Encode|Decode", "BenchmarkDecode", true},
+		{"Regex with alternation no match", "Encode|Decode", "BenchmarkTransform", false},
+		{"Regex with prefix anchor", "^Parse", "ParseJSON", true},
+		{"Regex with prefix anchor fails", "^Parse", "JSONParse", false},
+		{"Regex with suffix anchor", "Fast$", "BenchmarkFast", true},
+		{"Regex with suffix anchor fails", "Fast$", "FastBenchmark", false},
+		{"Complex regex pattern", "Benchmark(Parse|Validate).*JSON", "BenchmarkParseComplexJSON", true},
+		{"Complex regex pattern no match", "Benchmark(Parse|Validate).*JSON", "BenchmarkParseXML", false},
+		{"Case sensitive match", "test", "Test", false},
+		{"Case insensitive regex", "(?i)test", "TEST", true},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			shared.FlagState.FilterRegex = tt.filter
-
-			result := parser.ShouldIncludeBenchmark(tt.benchName)
-			assert.Equal(t, tt.expected, result)
+		s.Run(tt.name, func() {
+			result, err := parser.ShouldIncludeBenchmark(tt.benchName, parser.Config{Filter: tt.filter})
+			s.Require().NoError(err)
+			s.Equal(tt.expected, result)
 		})
 	}
+}
+
+func TestShouldIncludeBenchmarkSuite(t *testing.T) {
+	suite.Run(t, new(ShouldIncludeBenchmarkSuite))
 }

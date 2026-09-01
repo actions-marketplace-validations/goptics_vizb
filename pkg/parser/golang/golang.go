@@ -3,6 +3,7 @@ package golang
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -15,14 +16,6 @@ import (
 
 func init() {
 	parser.Parsers["go"] = ParseGoBenchmark
-}
-
-func storeCpuCount(cpu string) {
-	if shared.CPUCount == 0 {
-		if cpuCount, err := strconv.Atoi(cpu); err == nil {
-			shared.CPUCount = cpuCount
-		}
-	}
 }
 
 func parseBenchmarkName(name benchfmt.Name) (benchName string, cpu string) {
@@ -42,11 +35,19 @@ func parseBenchmarkName(name benchfmt.Name) (benchName string, cpu string) {
 	return
 }
 
-func ParseGoBenchmark(filePath string) (results []shared.BenchmarkData) {
-	f := shared.MustOpenFile(filePath)
-	defer f.Close()
+// ParseGoBenchmark converts Go benchmark text or go test JSON events into data
+// points and returns any system metadata found in the benchmark configuration.
+func ParseGoBenchmark(input io.Reader, cfg parser.Config) ([]shared.DataPoint, parser.Config, *shared.Meta, error) {
+	var results []shared.DataPoint
+	var system shared.Meta
+	var cpuName string
+	var cpuCount int
 
-	reader := benchfmt.NewReader(f, filePath)
+	benchmarkInput, err := prepareBenchmarkInput(input)
+	if err != nil {
+		return nil, cfg, nil, err
+	}
+	reader := benchfmt.NewReader(benchmarkInput, "input")
 
 	var allIters []int
 
@@ -58,22 +59,33 @@ func ParseGoBenchmark(filePath string) (results []shared.BenchmarkData) {
 			continue
 		}
 
-		shared.OS, shared.Arch, shared.Pkg, shared.CPU = result.GetConfig("goos"), result.GetConfig("goarch"), result.GetConfig("pkg"), result.GetConfig("cpu")
+		system.OS = result.GetConfig("goos")
+		system.Arch = result.GetConfig("goarch")
+		system.Pkg = result.GetConfig("pkg")
+		cpuName = strings.TrimSpace(result.GetConfig("cpu"))
 		rawBenchName, cpuCore := parseBenchmarkName(result.Name)
 
-		if !parser.ShouldIncludeBenchmark(rawBenchName) {
+		include, err := parser.ShouldIncludeBenchmark(rawBenchName, cfg)
+		if err != nil {
+			return nil, cfg, nil, err
+		}
+		if !include {
 			continue
 		}
 
-		group, err := parser.GroupBenchmarkName(rawBenchName)
+		group, err := parser.GroupBenchmarkName(rawBenchName, cfg)
 
 		if err != nil {
-			shared.ExitWithError("Error on parsing group from bench name", err)
+			return nil, cfg, nil, fmt.Errorf("parse group from benchmark name: %w", err)
 		}
 
-		benchName, xAxis, yAxis := group["name"], group["xAxis"], group["yAxis"]
+		benchName, xAxis, yAxis, zAxis := group["name"], group["xAxis"], group["yAxis"], group["zAxis"]
 
-		storeCpuCount(cpuCore)
+		if cpuCount == 0 {
+			if count, err := strconv.Atoi(cpuCore); err == nil {
+				cpuCount = count
+			}
+		}
 
 		var benchStats []shared.Stat
 
@@ -83,18 +95,18 @@ func ParseGoBenchmark(filePath string) (results []shared.BenchmarkData) {
 			switch value.Unit {
 			case "sec/op":
 				benchStat = shared.Stat{
-					Type:  utils.CreateStatType("Execution Time", shared.FlagState.TimeUnit, "op"),
-					Value: utils.FormatTime(value.OrigValue, shared.FlagState.TimeUnit),
+					Type:  utils.CreateStatType("Execution Time", cfg.TimeUnit, "op"),
+					Value: shared.F64(utils.FormatTime(value.OrigValue, cfg.TimeUnit, cfg.Round)),
 				}
 			case "B/op":
 				benchStat = shared.Stat{
-					Type:  utils.CreateStatType("Memory Usage", shared.FlagState.MemUnit, "op"),
-					Value: utils.FormatMem(value.Value, shared.FlagState.MemUnit),
+					Type:  utils.CreateStatType("Memory Usage", cfg.MemUnit, "op"),
+					Value: shared.F64(utils.FormatMem(value.Value, cfg.MemUnit, cfg.Round)),
 				}
 			case "allocs/op":
 				benchStat = shared.Stat{
-					Type:  utils.CreateStatType("Allocations", shared.FlagState.NumberUnit, "op"),
-					Value: utils.FormatNumber(value.Value, shared.FlagState.NumberUnit),
+					Type:  utils.CreateStatType("Allocations", cfg.NumberUnit, "op"),
+					Value: shared.F64(utils.FormatNumber(value.Value, cfg.NumberUnit, cfg.Round)),
 				}
 			case "B/s", "MB/s", "GB/s":
 				val, unit := value.OrigValue, value.OrigUnit
@@ -105,7 +117,7 @@ func ParseGoBenchmark(filePath string) (results []shared.BenchmarkData) {
 
 				benchStat = shared.Stat{
 					Type:  utils.CreateStatType("Throughput", unit, ""),
-					Value: val,
+					Value: shared.F64(utils.FormatNumber(val, "", cfg.Round)),
 				}
 			default:
 				customType := "Metric"
@@ -116,21 +128,25 @@ func ParseGoBenchmark(filePath string) (results []shared.BenchmarkData) {
 
 				benchStat = shared.Stat{
 					Type:  utils.CreateStatType(customType, value.Unit, ""),
-					Value: value.Value,
+					Value: shared.F64(utils.FormatNumber(value.Value, "", cfg.Round)),
 				}
 			}
 
 			benchStats = append(benchStats, benchStat)
 		}
 
-		results = append(results, shared.BenchmarkData{
+		results = append(results, shared.DataPoint{
 			Name:  benchName,
 			XAxis: xAxis,
 			YAxis: yAxis,
+			ZAxis: zAxis,
 			Stats: benchStats,
 		})
 
 		allIters = append(allIters, result.Iters)
+	}
+	if err := reader.Err(); err != nil {
+		return nil, cfg, nil, fmt.Errorf("read Go benchmark: %w", err)
 	}
 
 	hasDifferentIters := false
@@ -147,47 +163,82 @@ func ParseGoBenchmark(filePath string) (results []shared.BenchmarkData) {
 	if hasDifferentIters {
 		for i := range results {
 			results[i].Stats = append(results[i].Stats, shared.Stat{
-				Type:  utils.CreateStatType("Iterations", shared.FlagState.NumberUnit, ""),
-				Value: utils.FormatNumber(float64(allIters[i]), shared.FlagState.NumberUnit),
+				Type:  utils.CreateStatType("Iterations", cfg.NumberUnit, ""),
+				Value: shared.F64(utils.FormatNumber(float64(allIters[i]), cfg.NumberUnit, cfg.Round)),
 			})
 		}
 	}
 
-	return
+	if cpuName != "" || cpuCount != 0 {
+		system.CPU = &shared.CPUInfo{Name: cpuName, Cores: cpuCount}
+	}
+	var systemOutput *shared.Meta
+	if system != (shared.Meta{}) {
+		systemOutput = &system
+	}
+	return results, cfg, systemOutput, nil
 }
 
-func ConvertGoJsonBenchToText(filePath string) string {
-	f := shared.MustOpenFile(filePath)
-	tempFilePath := shared.MustCreateTempFile(shared.TempBenchFilePrefix, "txt")
-	tempFile := shared.MustCreateFile(tempFilePath)
-	shared.TempFiles.Store(tempFilePath)
-
-	defer f.Close()
-	defer tempFile.Close()
-
-	dec := json.NewDecoder(f)
-	writer := bufio.NewWriter(tempFile)
+// prepareBenchmarkInput converts Go test -json events to their benchmark text
+// while leaving regular benchmark output streaming through to benchfmt.
+func prepareBenchmarkInput(input io.Reader) (io.Reader, error) {
+	reader := bufio.NewReader(input)
+	var prefix strings.Builder
 
 	for {
-		var ev shared.BenchEvent
-		if err := dec.Decode(&ev); err != nil {
-			if err == io.EOF {
-				break
+		line, err := reader.ReadString('\n')
+		prefix.WriteString(line)
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" {
+			var event shared.BenchEvent
+			if json.Unmarshal([]byte(trimmed), &event) != nil {
+				return io.MultiReader(strings.NewReader(prefix.String()), reader), nil
 			}
-
-			shared.ExitWithError("Error on converting json to text", err)
+			if event.Action == "" {
+				return io.MultiReader(strings.NewReader(prefix.String()), reader), nil
+			}
+			return readBenchmarkEvents(reader, event, err)
 		}
 
-		if ev.Action == "output" {
-			writer.WriteString(ev.Output)
+		if err == io.EOF {
+			return strings.NewReader(prefix.String()), nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read Go benchmark: %w", err)
 		}
 	}
+}
 
-	if err := writer.Flush(); err != nil {
-		shared.ExitWithError("Error on converting json to text", err)
+func readBenchmarkEvents(reader *bufio.Reader, first shared.BenchEvent, firstErr error) (io.Reader, error) {
+	var output strings.Builder
+	if first.Action == "output" {
+		output.WriteString(first.Output)
+	}
+	if firstErr == io.EOF {
+		return strings.NewReader(output.String()), nil
+	}
+	if firstErr != nil {
+		return nil, fmt.Errorf("read Go benchmark JSON: %w", firstErr)
 	}
 
-	tempFile.Sync()
+	for {
+		line, err := reader.ReadString('\n')
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" {
+			var event shared.BenchEvent
+			if decodeErr := json.Unmarshal([]byte(trimmed), &event); decodeErr != nil {
+				return nil, fmt.Errorf("read Go benchmark JSON: %w", decodeErr)
+			}
+			if event.Action == "output" {
+				output.WriteString(event.Output)
+			}
+		}
 
-	return tempFilePath
+		if err == io.EOF {
+			return strings.NewReader(output.String()), nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read Go benchmark JSON: %w", err)
+		}
+	}
 }

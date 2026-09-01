@@ -1,4 +1,74 @@
+# ─── Go ───────────────────────────────────────────────────────────────
+# Test artifacts + coverage
 *.out
+*.test
+*.prof
+*-out
+coverage.txt
+coverage.html
+.gocache/
+
+# Vendored deps (not used today, ignore if added later)
+vendor/
+
+# Build output
 bin/
+
+# Task status/checksum cache (local only)
+.task/
+
+# act local workflow runs
+.act/
+
+# ─── Node / UI / Docs ────────────────────────────────────────────────
 node_modules
 dist
+.vite
+.astro
+.pnpm-store
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
+
+# ─── Environment ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Editors / OS ────────────────────────────────────────────────────
+# IDE / editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── Project ──────────────────────────────────────────────────────────
+# Agent instruction files
+superpowers
+.superpowers
+openspec
+
+.agent
+.claude
+.codex
+.opencode
+.worktrees
+.commandcode
+
+# Playwright
+ui/test-results/
+ui/playwright-report/
+ui/blob-report/
+ui/playwright/.cache/
+
+# Vitest UI coverage
+ui/coverage/

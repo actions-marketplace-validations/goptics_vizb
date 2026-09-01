@@ -1,8 +1,43 @@
 import { fontSize } from './common'
 
-/**
- * Creates pie chart label configuration
- */
+export type SeriesSymbolProps = {
+  symbol?: string
+  symbolSize?: number
+  sampling?: 'lttb'
+}
+
+/** Merge CLI --symbol / --symbol-size overrides onto chart defaults. */
+export function resolveSeriesSymbol(
+  defaults: SeriesSymbolProps,
+  symbol?: string,
+  symbolSize?: number
+): SeriesSymbolProps {
+  const out: SeriesSymbolProps = { ...defaults }
+  if (symbol) out.symbol = symbol
+  if (symbolSize !== undefined) out.symbolSize = symbolSize
+  return out
+}
+
+export function resolve3DSymbolSize(
+  computed: number | undefined,
+  override?: number
+): number | undefined {
+  if (override !== undefined) return override
+  return computed
+}
+
+export function resolve3DSymbolProps(
+  computedSize: number | undefined,
+  symbol?: string,
+  symbolSize?: number
+): { symbol?: string; symbolSize?: number } {
+  const out: { symbol?: string; symbolSize?: number } = {}
+  if (symbol) out.symbol = symbol
+  const size = resolve3DSymbolSize(computedSize, symbolSize)
+  if (size !== undefined) out.symbolSize = size
+  return out
+}
+
 export function createPieLabelConfig(
   showLabels: boolean,
   styling: { textColor: string },
@@ -16,9 +51,6 @@ export function createPieLabelConfig(
   }
 }
 
-/**
- * Creates pie chart series configuration
- */
 export function createPieSeriesConfig(
   name: string,
   data: any[],
@@ -35,61 +67,5 @@ export function createPieSeriesConfig(
     center,
     data,
     label: createPieLabelConfig(showLabels, styling, customFormatter),
-  }
-}
-
-/**
- * Creates line chart series configuration
- */
-export function createLineSeriesConfig(
-  seriesData: any,
-  showLabels: boolean,
-  styling: { textColor: string },
-  color: string,
-  customConfig?: any
-): any {
-  return {
-    name: seriesData.subject,
-    type: 'line',
-    data: seriesData.values.map((value: number) => ({
-      value,
-      label: {
-        show: showLabels,
-        position: 'top',
-        formatter: '{c}',
-        fontSize,
-        color: styling.textColor,
-      },
-    })),
-    itemStyle: { color },
-    ...customConfig,
-  }
-}
-
-/**
- * Creates bar chart series configuration
- */
-export function createBarSeriesConfig(
-  seriesData: any,
-  showLabels: boolean,
-  styling: { textColor: string },
-  color: string,
-  customConfig?: any
-): any {
-  return {
-    name: seriesData.subject,
-    type: 'bar',
-    data: seriesData.values.map((value: number) => ({
-      value,
-      label: {
-        show: showLabels,
-        position: 'top',
-        formatter: '{c}',
-        fontSize,
-        color: styling.textColor,
-      },
-    })),
-    itemStyle: { color },
-    ...customConfig,
   }
 }
