@@ -39,7 +39,7 @@ jobs:
     outputs:
       changed: ${{ steps.filter.outputs.ui }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - id: filter
         if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -62,7 +62,7 @@ jobs:
       queue: max
     steps:
       - if: needs.changes.outputs.changed == 'true'
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Rebuild embed
         if: needs.changes.outputs.changed == 'true'
@@ -73,7 +73,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -95,7 +95,7 @@ jobs:
     needs: [embed, changes]
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - name: Rebuild embed
         if: needs.changes.outputs.changed == 'true'
@@ -113,7 +113,7 @@ jobs:
   format:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - uses: actions/setup-go@v7
         with:
@@ -133,7 +133,7 @@ jobs:
     needs: [embed, changes]
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - name: Rebuild embed
         if: needs.changes.outputs.changed == 'true'
